@@ -5,6 +5,7 @@
 *Vera Benjamin
 *Vera Thiago
 *Villasboa Tobías
+
 Este es un proyecto base en PHP pensado para que los alumnos trabajen con una aplicación simple de autenticación. Incluye:
 
 - Un formulario de registro.
