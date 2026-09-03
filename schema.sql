@@ -1,6 +1,6 @@
-CREATE DATABASE pdi_base;
+CREATE DATABASE peritasfc;
 
-USE pdi_base;
+USE peritasfc;
 
 CREATE TABLE IF NOT EXISTS users (
     id         CHAR(36)     NOT NULL DEFAULT (UUID()),
