@@ -13,6 +13,7 @@ function logout() {
   exit;
 }
 ?>
+//trabajo//
 
 <!DOCTYPE html>
 <html lang="es">
