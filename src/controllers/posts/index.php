@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
 
 try {
     $query = '
-        SELECT
+        SELECT 
             p.*,
             u.id AS user_id,
             u.name AS user_name
@@ -15,8 +15,10 @@ try {
     $stmt = $pdo->prepare($query);
     $stmt->execute();
 
+    // Obtenemos todos los registros como un array asociativo
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Cargamos la vista correspondiente pasando los datos
     require_once __DIR__ . '/../../views/posts/index.php';
 } catch (PDOException $e) {
     exit('Error al consultar los posts');
