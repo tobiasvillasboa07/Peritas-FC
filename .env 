@@ -1,0 +1,6 @@
+# Acá ponemos las variables que usamos en el .env para tener de referencia al momento de subir/clonar el repo
+# Los valores son de ejemplo, acá no se ponen los valores de verdad
+DB_HOST=localhost
+DB_NAME=peritasfc
+DB_USER=root
+DB_PASS=

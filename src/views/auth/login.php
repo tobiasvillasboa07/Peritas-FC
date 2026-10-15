@@ -1,29 +1,43 @@
-<?php
-include('../_layouts/auth.layout.php');
-?>
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Peritas FC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="flex flex-col min-h-screen bg-[#0B132B] text-slate-100 font-['Poppins'] justify-center items-center p-4">
 
-<div class="text-center mb-4">
-  <img src="/assets/img/php-logo.png" alt="Logo" width="60" class="mb-2">
-  <h1 class="h4 mb-0">PDISC</h1>
-  <p class="text-muted small">Ingresá con tu cuenta</p>
-</div>
+    <div class="max-w-md w-full bg-[#1C2541] border border-[#3A506B]/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#D4AF37] to-yellow-500"></div>
+        
+        <div class="text-center space-y-2">
+            <h1 class="text-2xl font-extrabold text-white">Ingresá a tu Cuenta</h1>
+            <p class="text-xs text-slate-400">Iniciá sesión para gestionar tu carnet digital en Peritas FC</p>
+        </div>
 
-<form action="/src/controllers/auth/login.php" method="POST">
-  <div class="mb-3">
-    <label for="email" class="form-label">E-mail</label>
-    <input type="email" class="form-control" id="email" name="email" required autofocus>
-  </div>
+        <!-- Formulario que conecta con tu controlador PHP de Login -->
+        <form action="login.php" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico</label>
+                <input type="email" name="email" required placeholder="socio@peritias.com" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña</label>
+                <input type="password" name="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+            </div>
 
-  <div class="mb-3">
-    <label for="password" class="form-label">Contraseña</label>
-    <input type="password" class="form-control" id="password" name="password" required>
-  </div>
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-[#0B132B] font-black tracking-wide rounded-xl shadow-lg hover:scale-[1.01] transition">
+                INGRESAR
+            </button>
+        </form>
 
-  <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-</form>
+        <div class="text-center border-t border-[#3A506B]/30 pt-4">
+            <p class="text-xs text-slate-400">¿Todavía no sos socio? <a href="register.php" class="text-[#D4AF37] hover:underline font-bold">Asociate acá</a></p>
+        </div>
+    </div>
 
-<br />
-
-<div class="text-center">
-  <p class="text-muted small">¿No tienes una cuenta? <a href="/src/views/auth/register.php">¡Registrate ahora!</a></p>
-</div>
+</body>
+</html>

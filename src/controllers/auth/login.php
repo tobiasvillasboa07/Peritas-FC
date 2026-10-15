@@ -1,47 +1,43 @@
 <?php
+require_once __DIR__ . '/../../config/database.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if (empty($email) || empty($password)) {
-        header('Location: /login?error=Campos obligatorios');
+        header('Location: /src/views/auth/login.php?error=Campos obligatorios');
         exit;
     }
 
-    // Conexión a la base de datos usando las variables de entorno
-    $host = $_ENV['DB_HOST'] ?? 'localhost';
-    $dbname = $_ENV['DB_NAME'] ?? 'pdi_base';
-    $user = $_ENV['DB_USER'] ?? 'root';
-    $pass = $_ENV['DB_PASS'] ?? '';
-
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
-        $stmt->execute(['email' => $email]);
+        // Consulta usando nuestra conexión PDO de SQLite
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
+        $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user['password'])) {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+        // Verificación de contraseña
+        if ($user && ($password === $user['password'] || password_verify($password, $user['password']))) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
 
-            header('Location: /');
+            // Redirección absoluta limpia hacia el index de vistas
+            header('Location: /src/views/index.php');
             exit;
         } else {
-            header('Location: /login?error=Credenciales incorrectas');
+            header('Location: /src/views/auth/login.php?error=Credenciales incorrectas');
             exit;
         }
     } catch (PDOException $e) {
-        header('Location: /login?error=Error de conexión');
+        header('Location: /src/views/auth/login.php?error=Error de conexión');
         exit;
     }
 } else {
-    header('Location: /login');
+    header('Location: /src/views/auth/login.php');
     exit;
 }
