@@ -1,7 +1,6 @@
 <?php
 // Portal del socio: página a la que se llega después de iniciar sesión.
-session_start();
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/bootstrap.php';
 
 if (empty($_SESSION['user_id'])) { header('Location: /src/views/auth/login.php'); exit; }
 
@@ -22,7 +21,9 @@ $cuotas->execute([$uid]);
 $cuotas = $cuotas->fetchAll();
 $pendientes = count(array_filter($cuotas, fn($c) => $c['estado'] === 'pendiente'));
 
-$partido = $pdo->query("SELECT * FROM matches WHERE match_date >= datetime('now','localtime') ORDER BY match_date LIMIT 1")->fetch();
+$pp = $pdo->prepare('SELECT * FROM matches WHERE match_date >= ? ORDER BY match_date LIMIT 1');
+$pp->execute([date('Y-m-d H:i:s')]);   // hora de Argentina, la fija bootstrap.php
+$partido = $pp->fetch();
 $noticias = $pdo->query('SELECT title, content, category, created_at FROM posts ORDER BY created_at DESC LIMIT 3')->fetchAll();
 
 $te = $pdo->prepare('SELECT t.sector, t.price, m.away_team, m.match_date FROM tickets t JOIN matches m ON m.id = t.match_id WHERE t.user_id = ? ORDER BY m.match_date');
@@ -54,6 +55,11 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         <a href="/" class="font-extrabold text-lg">PERITAS <span class="text-[#D4AF37]">FC</span></a>
         <div class="flex items-center gap-4 text-sm">
             <a href="/" class="text-slate-300 hover:text-white hidden sm:block">Inicio</a>
+            <a href="/src/views/entradas.php" class="text-slate-300 hover:text-white">Entradas</a>
+            <?php if ($user['role'] === 'admin'): ?>
+                <a href="/src/views/admin/partidos.php" class="text-[#D4AF37] hover:text-yellow-300">Partidos</a>
+                <a href="/src/controllers/posts/index.php" class="text-[#D4AF37] hover:text-yellow-300">Noticias</a>
+            <?php endif; ?>
             <span class="text-right leading-tight"><span class="block font-semibold"><?= e($user['name']) ?></span><span class="block text-xs text-[#D4AF37]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span></span>
             <a href="/src/views/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#3A506B] hover:border-[#D4AF37] text-xs font-semibold">Salir</a>
         </div>
@@ -121,7 +127,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-sm text-slate-400">Todavía no sacaste entradas. La compra online es lo próximo que vamos a sumar.</p>
+            <p class="text-sm text-slate-400">Todavía no sacaste entradas. <a href="/src/views/entradas.php" class="text-[#D4AF37] font-semibold hover:underline">Sacá la primera</a>.</p>
         <?php endif; ?>
     </section>
 

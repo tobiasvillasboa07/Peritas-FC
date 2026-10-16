@@ -1,6 +1,5 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/bootstrap.php';
 
 // Si ya inició sesión, lo mandamos al portal
 if (!empty($_SESSION['user_id'])) {
