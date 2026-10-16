@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "category": "futbol",
+    "title": "¡Entrenamiento matutino enfocado en el Superclásico!",
+    "summary": "El plantel profesional de Peritas FC completó su rutina táctica preparándose para el enfrentamiento dominical.",
+    "date": "Hoy",
+    "img": "/assets/img/entrenamiento.jpg"
+  },
+  {
+    "id": 2,
+    "category": "institucional",
+    "title": "Inauguración del nuevo Centro de Cómputos PFC",
+    "summary": "El presidente de la institución cortó la cinta del nuevo espacio tecnológico que digitalizará todas las filiales.",
+    "date": "Ayer",
+    "img": "/assets/img/centro-computos.jpg"
+  },
+  {
+    "id": 3,
+    "category": "futbol",
+    "title": "Fichaje Bomba: Un talentoso volante se suma al club",
+    "summary": "Se concretó la incorporación de nuestra nueva estrella para liderar la zona de mediocampo durante el torneo.",
+    "date": "Hace 3 días",
+    "img": "/assets/img/fichaje.jpg"
+  },
+  {
+    "id": 4,
+    "category": "institucional",
+    "title": "Convocatoria a Asamblea General Ordinaria 2026",
+    "summary": "Invitamos a todos los socios activos a debatir el presupuesto y los nuevos proyectos de infraestructura del estadio.",
+    "date": "Hace 5 días",
+    "img": "/assets/img/asamblea.jpg"
+  }
+]
