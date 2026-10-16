@@ -54,6 +54,17 @@
         .mobile-active-tab {
             color: #D4AF37 !important;
         }
+
+        .pitch-bg {
+            background:
+                linear-gradient(to right, rgba(11,19,43,.96) 35%, rgba(11,19,43,.55) 100%),
+                radial-gradient(circle at 85% 15%, rgba(212,175,55,.35), transparent 45%),
+                repeating-linear-gradient(90deg, #1C2541 0 70px, #17203b 70px 140px);
+        }
+        :focus-visible { outline: 2px solid #D4AF37; outline-offset: 3px; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-club-dark text-slate-100 custom-scrollbar font-sans pb-16 md:pb-0">
@@ -79,7 +90,7 @@
                 <a href="#" onclick="navigate('home')" id="nav-home" class="hover:text-club-gold transition py-2 border-b-2 border-transparent active-tab">INICIO</a>
                 <a href="#" onclick="navigate('news')" id="nav-news" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">NOTICIAS</a>
                 <a href="#" onclick="navigate('tickets')" id="nav-tickets" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">ENTRADAS</a>
-                <a href="/src/views/auth/login.php" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
+                <a href="#" onclick="navigate('member')" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
                 <button onclick="openChatbotModal()" class="px-3.5 py-1.5 bg-club-gold/15 border border-club-gold/50 text-club-gold rounded-full hover:bg-club-gold hover:text-club-dark transition flex items-center gap-2 text-xs font-black shadow-sm">
                     <i class="fa-solid fa-robot text-sm animate-pulse"></i> ASISTENTE
                 </button>
@@ -120,14 +131,19 @@
             <!-- Hero Banner: Next Match -->
             <div class="relative rounded-3xl overflow-hidden bg-club-navy border border-club-blue/50 shadow-2xl">
                 <!-- Cover Image -->
-                <div class="absolute inset-0 bg-cover bg-center" style="background-image: linear-gradient(to right, rgba(11, 19, 43, 0.95) 40%, rgba(11, 19, 43, 0.3) 100%), url('http://googleusercontent.com/image_collection/image_retrieval/5458801617881165471_0');"></div>
+                <div class="absolute inset-0 pitch-bg"></div>
+                <svg class="absolute right-[-60px] top-1/2 -translate-y-1/2 h-[120%] w-auto opacity-25 hidden md:block" viewBox="0 0 400 400" fill="none" stroke="#D4AF37" stroke-width="3" aria-hidden="true">
+                    <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="6" fill="#D4AF37"/><line x1="200" y1="0" x2="200" y2="400"/><rect x="-20" y="110" width="110" height="180"/>
+                </svg>
                 
                 <!-- Content Area -->
                 <div class="relative z-10 px-6 sm:px-12 py-16 sm:py-24 max-w-2xl space-y-6">
                     <span class="inline-flex items-center gap-2 px-3 py-1 text-xs font-bold bg-club-gold/20 text-club-gold border border-club-gold/40 rounded-full tracking-widest uppercase">
                         <span class="w-2 h-2 rounded-full bg-club-gold animate-ping"></span> PRÓXIMO PARTIDO DE LOCAL
                     </span>
-                    <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight">PERITAS FC <span class="text-club-gold text-2xl sm:text-3xl block mt-1">VS</span> ALIANZA DEPORTIVA</h1>
+                    <h1 class="font-black text-white leading-[0.95] tracking-tight text-5xl sm:text-7xl">PERITAS FC
+                        <span class="flex items-center gap-4 my-3 text-club-gold text-xl sm:text-2xl font-bold tracking-widest"><span class="h-px w-12 bg-club-gold/60"></span>VS<span class="h-px w-12 bg-club-gold/60"></span></span>
+                        <span class="text-slate-200">ALIANZA DEPORTIVA</span></h1>
                     <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
                         Este domingo volvemos a casa. Vení a alentar al gigante de la tecnología en el Estadio "Estrella Azul". Asegurá tu lugar antes de que se agoten las entradas.
                     </p>
@@ -1384,6 +1400,20 @@
             const timerInterval = setInterval(updateTimer, 60000);
             updateTimer(); // instant call
         }
+
+        // ---- Conexión con el sistema real (PHP + SQLite) ----
+        // Login, registro y portal del socio ya no usan el simulado del navegador:
+        // llevan a las páginas PHP que guardan en database.sqlite.
+        const navigateSimulado = navigate;
+        navigate = function (viewName) {
+            const rutas = {
+                login: '/src/views/auth/login.php',
+                register: '/src/views/auth/register.php',
+                member: '/src/views/index.php'
+            };
+            if (rutas[viewName]) { window.location.href = rutas[viewName]; return; }
+            return navigateSimulado(viewName);
+        };
     </script>
 </body>
 </html>

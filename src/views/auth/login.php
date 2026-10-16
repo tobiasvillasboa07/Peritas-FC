@@ -1,3 +1,39 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../config/database.php';
+
+// Si ya inició sesión, lo mandamos al portal
+if (!empty($_SESSION['user_id'])) {
+    header('Location: /src/views/index.php');
+    exit;
+}
+
+$error = '';
+$aviso = isset($_GET['registrado']) ? '¡Cuenta creada! Ya podés iniciar sesión.' : '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email    = strtolower(trim($_POST['email'] ?? ''));
+    $password = $_POST['password'] ?? '';
+
+    $stmt = $pdo->prepare('SELECT id, name, email, password, role, categoria FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        session_regenerate_id(true);
+        $_SESSION['user_id']   = $user['id'];
+        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['role']      = $user['role'];
+        $_SESSION['user'] = [
+            'id' => $user['id'], 'name' => $user['name'], 'email' => $user['email'],
+            'role' => $user['role'], 'categoria' => $user['categoria'],
+        ];
+        header('Location: /src/views/index.php');
+        exit;
+    }
+    $error = 'Correo o contraseña incorrectos.';
+}
+?>
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-slate-950 text-slate-100">
 <head>
@@ -12,17 +48,23 @@
 
     <div class="max-w-md w-full bg-[#1C2541] border border-[#3A506B]/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#D4AF37] to-yellow-500"></div>
-        
+
         <div class="text-center space-y-2">
             <h1 class="text-2xl font-extrabold text-white">Ingresá a tu Cuenta</h1>
             <p class="text-xs text-slate-400">Iniciá sesión para gestionar tu carnet digital en Peritas FC</p>
         </div>
 
-        <!-- Formulario que conecta con tu controlador PHP de Login -->
+        <?php if ($error): ?>
+            <div class="bg-red-500/10 border border-red-500/40 text-red-300 text-xs rounded-xl px-4 py-3"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+        <?php if ($aviso): ?>
+            <div class="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-xs rounded-xl px-4 py-3"><?= htmlspecialchars($aviso) ?></div>
+        <?php endif; ?>
+
         <form action="login.php" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico</label>
-                <input type="email" name="email" required placeholder="socio@peritias.com" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+                <input type="email" name="email" required placeholder="socio@peritas.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña</label>

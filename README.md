@@ -37,7 +37,7 @@ El objetivo es comprender cómo se organiza un proyecto PHP con separación de v
 5. Si usas PHP integrado, ejecutar desde la raíz del proyecto:
 
    ```bash
-   php -S localhost:8000
+      rm database.sqlite
    ```
 
 6. Abrir en el navegador:

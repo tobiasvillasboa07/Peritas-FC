@@ -1,99 +1,157 @@
 <?php
-require_once __DIR__ . '/_layouts/layout.php';
+// Portal del socio: página a la que se llega después de iniciar sesión.
+session_start();
+require_once __DIR__ . '/../config/database.php';
+
+if (empty($_SESSION['user_id'])) { header('Location: /src/views/auth/login.php'); exit; }
+
+$uid = $_SESSION['user_id'];
+$st = $pdo->prepare('SELECT u.*, c.cuota_mensual FROM users u JOIN categorias c ON c.nombre = u.categoria WHERE u.id = ?');
+$st->execute([$uid]);
+$user = $st->fetch();
+if (!$user) { session_destroy(); header('Location: /src/views/auth/login.php'); exit; }
+
+// Genera la cuota del mes actual si todavía no existe (no repite gracias al UNIQUE)
+if ($user['cuota_mensual'] > 0) {
+    $pdo->prepare('INSERT OR IGNORE INTO cuotas (user_id, periodo, monto) VALUES (?, ?, ?)')
+        ->execute([$uid, date('Y-m'), $user['cuota_mensual']]);
+}
+
+$cuotas = $pdo->prepare('SELECT * FROM cuotas WHERE user_id = ? ORDER BY periodo DESC LIMIT 6');
+$cuotas->execute([$uid]);
+$cuotas = $cuotas->fetchAll();
+$pendientes = count(array_filter($cuotas, fn($c) => $c['estado'] === 'pendiente'));
+
+$partido = $pdo->query("SELECT * FROM matches WHERE match_date >= datetime('now','localtime') ORDER BY match_date LIMIT 1")->fetch();
+$noticias = $pdo->query('SELECT title, content, category, created_at FROM posts ORDER BY created_at DESC LIMIT 3')->fetchAll();
+
+$te = $pdo->prepare('SELECT t.sector, t.price, m.away_team, m.match_date FROM tickets t JOIN matches m ON m.id = t.match_id WHERE t.user_id = ? ORDER BY m.match_date');
+$te->execute([$uid]);
+$entradas = $te->fetchAll();
+
+function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi portal - Peritas FC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .pitch-bg { background: linear-gradient(to right, rgba(11,19,43,.96) 35%, rgba(11,19,43,.55) 100%),
+            radial-gradient(circle at 85% 15%, rgba(212,175,55,.35), transparent 45%),
+            repeating-linear-gradient(90deg, #1C2541 0 70px, #17203b 70px 140px); }
+        :focus-visible { outline: 2px solid #D4AF37; outline-offset: 3px; }
+    </style>
+</head>
+<body class="bg-[#0B132B] text-slate-100 font-['Poppins'] min-h-screen">
 
-<!-- VISTA PRINCIPAL (INICIO) -->
-<div class="space-y-12">
-    <!-- Hero Banner: Próximo Partido -->
-    <div class="relative rounded-3xl overflow-hidden bg-club-navy border border-club-blue/50 shadow-2xl">
-        <div class="absolute inset-0 bg-cover bg-center" style="background-image: linear-gradient(to right, rgba(11, 19, 43, 0.95) 40%, rgba(11, 19, 43, 0.3) 100%), url('http://googleusercontent.com/image_collection/image_retrieval/5458801617881165471_0');"></div>
-        
-        <div class="relative z-10 px-6 sm:px-12 py-16 sm:py-24 max-w-2xl space-y-6">
-            <span class="inline-flex items-center gap-2 px-3 py-1 text-xs font-bold bg-club-gold/20 text-club-gold border border-club-gold/40 rounded-full tracking-widest uppercase">
-                <span class="w-2 h-2 rounded-full bg-club-gold animate-ping"></span> PRÓXIMO PARTIDO DE LOCAL
-            </span>
-            <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight">PERITAS FC <span class="text-club-gold text-2xl sm:text-3xl block mt-1">VS</span> ALIANZA DEPORTIVA</h1>
-            <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Este domingo volvemos a casa. Vení a alentar al gigante de la tecnología en el Estadio "Estrella Azul". Asegurá tu lugar antes de que se agoten las entradas.
-            </p>
-            
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 pt-4">
-                <div class="flex gap-3">
-                    <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
-                        <span id="days" class="block text-2xl font-bold text-white">03</span>
-                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Días</span>
-                    </div>
-                    <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
-                        <span id="hours" class="block text-2xl font-bold text-white">14</span>
-                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Horas</span>
-                    </div>
-                    <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
-                        <span id="mins" class="block text-2xl font-bold text-white">25</span>
-                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Mins</span>
-                    </div>
-                </div>
-            </div>
+<header class="bg-[#1C2541]/95 border-b border-[#3A506B]/30 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="/" class="font-extrabold text-lg">PERITAS <span class="text-[#D4AF37]">FC</span></a>
+        <div class="flex items-center gap-4 text-sm">
+            <a href="/" class="text-slate-300 hover:text-white hidden sm:block">Inicio</a>
+            <span class="text-right leading-tight"><span class="block font-semibold"><?= e($user['name']) ?></span><span class="block text-xs text-[#D4AF37]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span></span>
+            <a href="/src/views/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#3A506B] hover:border-[#D4AF37] text-xs font-semibold">Salir</a>
         </div>
     </div>
+</header>
 
-    <!-- Sección Sede E.E.S.T. N° 4 Berazategui -->
-    <div class="space-y-6">
-        <div class="border-b border-club-blue/30 pb-4">
-            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-map-location-dot text-club-gold"></i> Nuestra Sede y Dirección Técnica
-            </h2>
-            <p class="text-xs text-slate-400 mt-1">Conocé dónde entrenamos, gestionamos el club y planificamos cada partido</p>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-club-navy/50 border border-club-blue/30 rounded-3xl p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden">
-            <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-club-gold/5 rounded-full blur-3xl"></div>
-            
-            <div class="lg:col-span-5 space-y-6 flex flex-col justify-between">
-                <div class="space-y-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black bg-club-gold/20 text-club-gold border border-club-gold/40 rounded-full tracking-wider uppercase">
-                        <i class="fa-solid fa-school text-xs"></i> E.E.S.T. N° 4 de Berazategui
-                    </span>
-                    <h3 class="text-xl font-extrabold text-white uppercase">Predio de Entrenamiento y Dirección Técnica</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        En alianza estratégica de fútbol y formación técnica, la sede operativa y dirección de entrenamiento de <strong class="text-club-gold">Peritas FC</strong> se establece en la destacada Escuela de Educación Secundaria Técnica N° 4 de Berazategui.
-                    </p>
-                    
-                    <div class="space-y-3 pt-2 text-sm text-slate-300">
-                        <p class="flex items-start gap-3">
-                            <i class="fa-solid fa-location-dot text-club-gold mt-1"></i>
-                            <span><strong>Dirección:</strong> Calle 111 N° 1890 entre 18 y 19, Berazategui, Buenos Aires (CP 1884).</span>
-                        </p>
-                        <p class="flex items-center gap-3">
-                            <i class="fa-solid fa-phone text-club-gold"></i>
-                            <span><strong>Teléfono Sede:</strong> 4261-4796</span>
-                        </p>
+<main class="max-w-6xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Próximo partido -->
+    <section class="pitch-bg rounded-3xl border border-[#3A506B]/50 px-6 sm:px-12 py-12">
+        <?php if ($partido): ?>
+            <p class="text-sm text-[#D4AF37] font-semibold mb-3"><?= e($partido['tournament']) ?> · <?= date('d/m/Y H:i', strtotime($partido['match_date'])) ?> hs</p>
+            <h1 class="font-black text-4xl sm:text-6xl leading-none"><?= e($partido['home_team']) ?><span class="block text-[#D4AF37] text-xl my-2">vs</span><span class="text-slate-200"><?= e($partido['away_team']) ?></span></h1>
+            <p class="text-slate-400 text-sm mt-4"><?= e($partido['stadium']) ?></p>
+            <div id="cuenta" data-fecha="<?= e(str_replace(' ', 'T', $partido['match_date'])) ?>" class="flex gap-3 mt-6">
+                <?php foreach (['d' => 'Días', 'h' => 'Horas', 'm' => 'Min'] as $k => $l): ?>
+                    <div class="bg-slate-900/80 border border-[#3A506B]/50 rounded-xl px-4 py-3 text-center min-w-[72px]"><span id="c-<?= $k ?>" class="block text-2xl font-bold">--</span><span class="text-xs text-slate-400"><?= $l ?></span></div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <h1 class="font-black text-3xl">Todavía no hay partidos cargados</h1>
+            <p class="text-slate-400 mt-2 text-sm">Cuando el club publique el próximo partido, lo vas a ver acá.</p>
+        <?php endif; ?>
+    </section>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Credencial -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-bold">Mi credencial</h2>
+            <div class="rounded-2xl p-6 bg-gradient-to-br from-[#1C2541] to-[#0B132B] border border-[#D4AF37]/40 space-y-4">
+                <p class="text-xs text-[#D4AF37] font-bold">PERITAS FC · CLUB DE SOCIOS</p>
+                <p class="text-2xl font-extrabold"><?= e($user['name']) ?></p>
+                <dl class="text-sm space-y-1 text-slate-300">
+                    <div class="flex justify-between"><dt class="text-slate-400">Categoría</dt><dd><?= e($user['categoria']) ?></dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-400">DNI</dt><dd><?= e($user['dni'] ?: '—') ?></dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-400">Socio desde</dt><dd><?= date('d/m/Y', strtotime($user['created_at'])) ?></dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-400">Estado</dt><dd class="<?= $pendientes ? 'text-yellow-400' : 'text-emerald-400' ?>"><?= $pendientes ? 'Cuota pendiente' : 'Al día' ?></dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <!-- Cuotas -->
+        <section class="lg:col-span-2 space-y-4">
+            <h2 class="text-xl font-bold">Mis cuotas</h2>
+            <div class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 divide-y divide-[#3A506B]/30">
+                <?php foreach ($cuotas as $c): ?>
+                    <div class="flex items-center justify-between px-5 py-3 text-sm">
+                        <span>Cuota <?= e($c['periodo']) ?></span>
+                        <span class="font-semibold"><?= plata($c['monto']) ?></span>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold <?= $c['estado'] === 'pagada' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300' ?>"><?= e($c['estado']) ?></span>
                     </div>
-                </div>
-                
-                <div class="pt-4 border-t border-club-blue/20 flex flex-wrap gap-4 items-center justify-between">
-                    <a href="https://maps.google.com/?q=-34.785804,-58.243205" target="_blank" class="px-4 py-2 text-xs bg-club-blue hover:bg-club-gold hover:text-club-dark text-slate-200 font-bold rounded-xl transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en Maps
-                    </a>
-                </div>
+                <?php endforeach; ?>
+                <?php if (!$cuotas): ?><p class="px-5 py-4 text-sm text-slate-400">Tu categoría no tiene cuota mensual.</p><?php endif; ?>
             </div>
-            
-            <div class="lg:col-span-7 h-[350px] sm:h-[400px] rounded-2xl overflow-hidden border border-club-gold/30 shadow-2xl relative">
-                <iframe 
-                    src="https://maps.google.com/maps?q=-34.785804,-58.243205&z=16&t=m&output=embed" 
-                    class="w-full h-full relative z-10 border-0"
-                    allowfullscreen="" 
-                    loading="lazy">
-                </iframe>
-            </div>
-        </div>
+        </section>
     </div>
-</div>
 
+    <!-- Entradas -->
+    <section class="space-y-4">
+        <h2 class="text-xl font-bold">Mis entradas</h2>
+        <?php if ($entradas): ?>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <?php foreach ($entradas as $t): ?>
+                    <div class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 p-4 text-sm"><p class="font-bold">vs <?= e($t['away_team']) ?></p><p class="text-slate-400"><?= date('d/m/Y H:i', strtotime($t['match_date'])) ?> · <?= e($t['sector']) ?></p><p class="text-[#D4AF37] font-semibold mt-1"><?= plata($t['price']) ?></p></div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-sm text-slate-400">Todavía no sacaste entradas. La compra online es lo próximo que vamos a sumar.</p>
+        <?php endif; ?>
+    </section>
+
+    <!-- Noticias -->
+    <section class="space-y-4">
+        <h2 class="text-xl font-bold">Últimas novedades</h2>
+        <?php if ($noticias): ?>
+            <div class="grid md:grid-cols-3 gap-4">
+                <?php foreach ($noticias as $n): ?>
+                    <article class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 p-5"><p class="text-xs text-[#D4AF37] font-semibold"><?= e($n['category']) ?> · <?= date('d/m/Y', strtotime($n['created_at'])) ?></p><h3 class="font-bold mt-1"><?= e($n['title']) ?></h3><p class="text-sm text-slate-400 mt-2"><?= e(mb_strimwidth($n['content'], 0, 140, '…')) ?></p></article>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-sm text-slate-400">El club todavía no publicó noticias.</p>
+        <?php endif; ?>
+    </section>
 </main>
-<footer class="hidden md:block bg-club-dark border-t border-club-blue/20 py-8 text-center text-slate-400 text-xs">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p>© 2026 Peritas FC. El club de la tecnología. Todos los derechos reservados.</p>
-    </div>
-</footer>
+
+<script>
+    const box = document.getElementById('cuenta');
+    if (box) {
+        const fin = new Date(box.dataset.fecha);
+        const poner = () => {
+            const ms = Math.max(0, fin - new Date());
+            document.getElementById('c-d').textContent = String(Math.floor(ms / 864e5)).padStart(2, '0');
+            document.getElementById('c-h').textContent = String(Math.floor(ms % 864e5 / 36e5)).padStart(2, '0');
+            document.getElementById('c-m').textContent = String(Math.floor(ms % 36e5 / 6e4)).padStart(2, '0');
+        };
+        poner(); setInterval(poner, 30000);
+    }
+</script>
 </body>
 </html>
