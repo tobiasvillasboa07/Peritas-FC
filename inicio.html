@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peritas FC - Portal Oficial de Socios</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        club: {
+                            dark: '#0B132B',      // Azul marino ultra oscuro
+                            navy: '#1C2541',      // Azul marino principal
+                            blue: '#3A506B',      // Azul intermedio
+                            gold: '#D4AF37',      // Dorado oficial
+                            goldDark: '#AA800E',  // Dorado oscuro para contrastes
+                            accent: '#00F2FE',    // Cyan dinámico para detalles modernos
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Estilos personalizados para animaciones y scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0B132B;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 3px;
+        }
+        .active-tab {
+            color: #D4AF37 !important;
+            border-bottom: 2px solid #D4AF37;
+        }
+        .mobile-active-tab {
+            color: #D4AF37 !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-club-dark text-slate-100 custom-scrollbar font-sans pb-16 md:pb-0">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-50 bg-club-navy/95 backdrop-blur-md border-b border-club-blue/30 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" onclick="navigate('home')" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-club-gold via-yellow-500 to-club-navy p-0.5 shadow-md flex items-center justify-center">
+                    <div class="w-full h-full bg-club-navy rounded-full flex items-center justify-center font-extrabold text-club-gold text-lg tracking-wider">
+                        PFC
+                    </div>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-tight text-white group-hover:text-club-gold transition">PERITAS <span class="text-club-gold">FC</span></span>
+                    <p class="text-[10px] text-slate-400 tracking-widest uppercase">El club de la tecnología</p>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-8 font-semibold text-sm tracking-wide text-slate-300">
+                <a href="#" onclick="navigate('home')" id="nav-home" class="hover:text-club-gold transition py-2 border-b-2 border-transparent active-tab">INICIO</a>
+                <a href="#" onclick="navigate('news')" id="nav-news" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">NOTICIAS</a>
+                <a href="#" onclick="navigate('tickets')" id="nav-tickets" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">ENTRADAS</a>
+                <a href="/src/views/auth/login.php" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
+                <button onclick="openChatbotModal()" class="px-3.5 py-1.5 bg-club-gold/15 border border-club-gold/50 text-club-gold rounded-full hover:bg-club-gold hover:text-club-dark transition flex items-center gap-2 text-xs font-black shadow-sm">
+                    <i class="fa-solid fa-robot text-sm animate-pulse"></i> ASISTENTE
+                </button>
+            </nav>
+
+            <!-- User Auth Corner -->
+            <div class="hidden md:flex items-center gap-4">
+                <div id="user-anonymous" class="flex items-center gap-3">
+                    <button onclick="navigate('login')" class="px-5 py-2 text-sm font-bold text-slate-300 hover:text-white transition">Iniciar Sesión</button>
+                    <button onclick="navigate('register')" class="px-5 py-2 text-sm font-bold bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark rounded-full hover:scale-105 active:scale-95 transition shadow-lg shadow-yellow-600/20">Asociarse</button>
+                </div>
+                <div id="user-profile-menu" class="hidden flex items-center gap-3">
+                    <div class="text-right">
+                        <p id="header-user-name" class="text-sm font-semibold text-white">Juan Pérez</p>
+                        <p id="header-user-role" class="text-xs text-club-gold">Socio Activo N° 1042</p>
+                    </div>
+                    <button onclick="navigate('member')" class="w-10 h-10 rounded-full border-2 border-club-gold flex items-center justify-center bg-club-blue overflow-hidden hover:scale-105 transition">
+                        <i class="fa-solid fa-user-tie text-slate-200"></i>
+                    </button>
+                    <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-400 transition" title="Cerrar Sesión">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hamburger (Handled gracefully via Bottom Navigation on Mobile, so this can just display a notification/info) -->
+            <div class="md:hidden flex items-center">
+                <span class="text-xs text-club-gold font-bold px-2 py-1 rounded bg-club-blue/40 uppercase">PERITAS Movil</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY SECTIONS -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- VIEW: HOME (INICIO) -->
+        <section id="view-home" class="space-y-12">
+            <!-- Hero Banner: Next Match -->
+            <div class="relative rounded-3xl overflow-hidden bg-club-navy border border-club-blue/50 shadow-2xl">
+                <!-- Cover Image -->
+                <div class="absolute inset-0 bg-cover bg-center" style="background-image: linear-gradient(to right, rgba(11, 19, 43, 0.95) 40%, rgba(11, 19, 43, 0.3) 100%), url('http://googleusercontent.com/image_collection/image_retrieval/5458801617881165471_0');"></div>
+                
+                <!-- Content Area -->
+                <div class="relative z-10 px-6 sm:px-12 py-16 sm:py-24 max-w-2xl space-y-6">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 text-xs font-bold bg-club-gold/20 text-club-gold border border-club-gold/40 rounded-full tracking-widest uppercase">
+                        <span class="w-2 h-2 rounded-full bg-club-gold animate-ping"></span> PRÓXIMO PARTIDO DE LOCAL
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight">PERITAS FC <span class="text-club-gold text-2xl sm:text-3xl block mt-1">VS</span> ALIANZA DEPORTIVA</h1>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Este domingo volvemos a casa. Vení a alentar al gigante de la tecnología en el Estadio "Estrella Azul". Asegurá tu lugar antes de que se agoten las entradas.
+                    </p>
+                    
+                    <!-- Countdown & CTAs -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 pt-4">
+                        <div class="flex gap-3">
+                            <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
+                                <span id="days" class="block text-2xl font-bold text-white">03</span>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider">Días</span>
+                            </div>
+                            <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
+                                <span id="hours" class="block text-2xl font-bold text-white">14</span>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider">Horas</span>
+                            </div>
+                            <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
+                                <span id="mins" class="block text-2xl font-bold text-white">25</span>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider">Mins</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="navigate('tickets')" class="px-6 py-3 bg-gradient-to-r from-club-gold to-yellow-500 hover:from-yellow-500 hover:to-club-gold text-club-dark font-extrabold rounded-full transition shadow-lg shadow-yellow-600/30 flex items-center gap-2 hover:scale-105 active:scale-95">
+                                <i class="fa-solid fa-ticket"></i> Comprar Entrada
+                            </button>
+                            <button onclick="navigate('member')" class="px-6 py-3 bg-club-navy border border-club-gold/50 text-club-gold font-bold rounded-full hover:bg-club-gold hover:text-club-dark transition flex items-center gap-2">
+                                <i class="fa-solid fa-id-card"></i> Mi Carnet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Quick Preview Section -->
+            <div class="space-y-6">
+                <div class="flex justify-between items-end border-b border-club-blue/30 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Últimas Novedades</h2>
+                        <p class="text-xs text-slate-400 mt-1">Enterate de todo el día a día institucional y deportivo</p>
+                    </div>
+                    <button onclick="navigate('news')" class="text-club-gold hover:text-yellow-400 text-sm font-semibold flex items-center gap-1 transition">
+                        Ver todas <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+                <!-- Grid of top 3 news cards -->
+                <div id="home-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dynamic rendering in JS -->
+                </div>
+            </div>
+
+            <!-- Membership Banner Ad -->
+            <div class="rounded-3xl border border-club-gold/30 bg-gradient-to-r from-club-navy to-club-dark p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-club-gold/5 rounded-full blur-3xl"></div>
+                <div class="space-y-3 max-w-xl text-center md:text-left">
+                    <h3 class="text-2xl font-extrabold text-white">¿Todavía no sos Socio de <span class="text-club-gold">Peritas FC</span>?</h3>
+                    <p class="text-slate-300 text-sm">
+                        Asociate hoy mismo de manera 100% online. Disfrutá de acceso gratuito o con descuento a la cancha, carnet digital instantáneo con QR para entrar al estadio y prioridad en eventos oficiales.
+                    </p>
+                </div>
+                <button onclick="navigate('register')" class="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-club-gold to-yellow-500 hover:scale-105 active:scale-95 text-club-dark font-black tracking-wide rounded-full transition shadow-lg shadow-yellow-600/30">
+                    REGISTRARME COMO SOCIO
+                </button>
+            </div>
+
+            <!-- Sede / Dirección Técnica Section (Técnica 4 de Berazategui) -->
+            <div class="space-y-6">
+                <div class="border-b border-club-blue/30 pb-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-club-gold"></i> Nuestra Sede y Dirección Técnica
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Conocé dónde entrenamos, gestionamos el club y planificamos cada partido</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-club-navy/50 border border-club-blue/30 rounded-3xl p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden">
+                    <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-club-gold/5 rounded-full blur-3xl"></div>
+                    
+                    <!-- Info Column -->
+                    <div class="lg:col-span-5 space-y-6 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black bg-club-gold/20 text-club-gold border border-club-gold/40 rounded-full tracking-wider uppercase">
+                                <i class="fa-solid fa-school text-xs"></i> E.E.S.T. N° 4 de Berazategui
+                            </span>
+                            <h3 class="text-xl font-extrabold text-white uppercase">Predio de Entrenamiento y Dirección Técnica</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                En alianza estratégica de fútbol y formación técnica, la sede operativa y dirección de entrenamiento de <strong class="text-club-gold">Peritas FC</strong> se establece en la destacada Escuela de Educación Secundaria Técnica N° 4 de Berazategui.
+                            </p>
+                            
+                            <div class="space-y-3 pt-2 text-sm text-slate-300">
+                                <p class="flex items-start gap-3">
+                                    <i class="fa-solid fa-location-dot text-club-gold mt-1"></i>
+                                    <span><strong>Dirección:</strong> Calle 111 N° 1890 entre 18 y 19, Berazategui, Buenos Aires (CP 1884).</span>
+                                </p>
+                                <p class="flex items-center gap-3">
+                                    <i class="fa-solid fa-phone text-club-gold"></i>
+                                    <span><strong>Teléfono Sede:</strong> 4261-4796</span>
+                                </p>
+                                <p class="flex items-start gap-3">
+                                    <i class="fa-solid fa-bus text-club-gold mt-1"></i>
+                                    <span><strong>Cómo Llegar:</strong> Colectivos 159 (Acceso/Mitre/L Azul), 300 (B1), 324 (Ramales 3, 16, 14, 2), 603 (N° 3 y 6), 98 (N° 3).</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-club-blue/20 flex flex-wrap gap-4 items-center justify-between">
+                            <div class="text-xs text-slate-400">
+                                <p class="font-semibold text-slate-300">Coordenadas GPS:</p>
+                                <p class="font-mono text-club-gold">-34.785804, -58.243205</p>
+                            </div>
+                            <a href="https://maps.google.com/?q=-34.785804,-58.243205" target="_blank" class="px-4 py-2 text-xs bg-club-blue hover:bg-club-gold hover:text-club-dark text-slate-200 font-bold rounded-xl transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en Maps
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Map Column -->
+                    <div class="lg:col-span-7 h-[350px] sm:h-[400px] rounded-2xl overflow-hidden border border-club-gold/30 shadow-2xl relative">
+                        <!-- Loading Indicator in Map -->
+                        <div class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center text-slate-400 gap-2 z-0">
+                            <i class="fa-solid fa-circle-notch animate-spin text-2xl text-club-gold"></i>
+                            <span class="text-xs font-semibold uppercase tracking-wider">Cargando Google Maps...</span>
+                        </div>
+                        <!-- Embedded Google Map -->
+                        <iframe 
+                            src="https://maps.google.com/maps?q=-34.785804,-58.243205&z=16&t=m&output=embed" 
+                            class="w-full h-full relative z-10 border-0"
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: NEWS (NOTICIAS) -->
+        <section id="view-news" class="hidden space-y-8">
+            <div class="border-b border-club-blue/30 pb-6 space-y-4">
+                <h1 class="text-3xl font-black text-white uppercase tracking-tight">Portal de Noticias</h1>
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <p class="text-sm text-slate-400">Filtrá las noticias oficiales del club</p>
+                    <div class="flex gap-2 bg-club-navy p-1 rounded-xl border border-club-blue/40">
+                        <button onclick="filterNews('todas')" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-club-gold text-club-dark transition" id="news-filter-todas">Todas</button>
+                        <button onclick="filterNews('futbol')" class="px-4 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition" id="news-filter-futbol">Fútbol</button>
+                        <button onclick="filterNews('institucional')" class="px-4 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition" id="news-filter-institucional">Institucional</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete News Grid -->
+            <div id="full-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Dynamic content -->
+            </div>
+        </section>
+
+        <!-- VIEW: TICKETS (COMPRA DE ENTRADAS) -->
+        <section id="view-tickets" class="hidden space-y-8">
+            <div class="border-b border-club-blue/30 pb-6">
+                <h1 class="text-3xl font-black text-white uppercase tracking-tight">Venta de Entradas</h1>
+                <p class="text-sm text-slate-400 mt-1">Adquirí tus localidades de forma digital. Recordá que los socios ingresan gratis a Tribuna General.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Available Matches Column (Left) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-club-gold"></i> Próximos Partidos Disponibles
+                    </h3>
+                    <div id="matches-list-container" class="space-y-4">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Ticket Selection / Checkout Panel (Right) -->
+                <div class="space-y-6">
+                    <div class="bg-club-navy border border-club-blue/50 rounded-2xl p-6 space-y-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-club-gold to-yellow-500"></div>
+                        <h3 class="text-lg font-bold text-white border-b border-club-blue/30 pb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-shopping-cart text-club-gold"></i> Detalle de Compra
+                        </h3>
+
+                        <!-- Ticket Config Form -->
+                        <div id="ticket-checkout-form" class="space-y-4">
+                            <div class="text-slate-400 text-sm py-4 text-center">
+                                <i class="fa-solid fa-ticket-simple text-4xl text-club-blue mb-2 block"></i>
+                                Seleccioná un partido para configurar tu entrada.
+                            </div>
+                        </div>
+
+                        <!-- Active socio indicator if applicable -->
+                        <div id="checkout-socio-benefit" class="hidden p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs">
+                            <i class="fa-solid fa-circle-check mr-1"></i> <strong>Socio Activo detectado.</strong> ¡Beneficio de un 50% de descuento o ingreso libre en popular aplicado!
+                        </div>
+
+                        <!-- Price summary -->
+                        <div id="checkout-price-panel" class="hidden border-t border-club-blue/30 pt-4 space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-300">Entrada General (Valor)</span>
+                                <span id="checkout-original-price" class="text-slate-400 line-through">AR$ 8.000</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-green-400">
+                                <span>Descuento de Socio</span>
+                                <span id="checkout-discount-value">-AR$ 4.000</span>
+                            </div>
+                            <div class="flex justify-between items-end border-t border-club-blue/30 pt-3">
+                                <span class="text-white font-bold text-base">TOTAL A PAGAR</span>
+                                <span id="checkout-final-price" class="text-2xl font-black text-club-gold">AR$ 4.000</span>
+                            </div>
+                            
+                            <button onclick="processTicketPayment()" class="w-full py-3 mt-4 bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black tracking-wide rounded-xl shadow-lg shadow-yellow-600/20 hover:scale-[1.02] active:scale-[0.98] transition">
+                                CONFIRMAR Y PAGAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: MEMBER DASHBOARD & CARNET DIGITAL -->
+        <section id="view-member" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-club-blue/30 pb-6 gap-4">
+                <div>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tight">Portal del Socio</h1>
+                    <p class="text-sm text-slate-400 mt-1">Administrá tu credencial digital, pagos y estado de cuenta</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="simulateDuesPayment()" id="btn-pay-dues" class="hidden px-5 py-2 text-xs font-black bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-600/10">
+                        PAGAR CUOTA (SIMULADO)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- CARNET DIGITAL (Golden-Futuristic Aesthetic) -->
+                <div class="lg:col-span-5 flex flex-col items-center gap-4">
+                    <h3 class="text-lg font-bold text-white self-start flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-id-card text-club-gold"></i> Credencial Digital
+                    </h3>
+                    
+                    <!-- Digital Card Outer Shell -->
+                    <div class="relative w-full max-w-[380px] h-[550px] rounded-3xl overflow-hidden bg-gradient-to-b from-[#1C2541] via-[#0B132B] to-[#12192c] border-2 border-club-gold/40 shadow-2xl p-6 flex flex-col justify-between select-none group">
+                        <!-- Hologram overlay effect -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-60"></div>
+                        
+                        <!-- Top header of Carnet -->
+                        <div class="relative z-10 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-club-gold flex items-center justify-center text-xs text-club-dark font-black">
+                                    PFC
+                                </div>
+                                <div class="leading-none">
+                                    <span class="text-xs font-black tracking-wide text-white">PERITAS</span>
+                                    <p class="text-[8px] text-club-gold font-bold uppercase tracking-widest">FC Club de Socios</p>
+                                </div>
+                            </div>
+                            <div id="carnet-chip" class="w-8 h-7 bg-gradient-to-r from-amber-200 to-yellow-600 rounded-md opacity-85 shadow border border-amber-300"></div>
+                        </div>
+
+                        <!-- Card Body/Identity Grid -->
+                        <div class="relative z-10 flex flex-col items-center gap-4 my-auto pt-6">
+                            <!-- Rounded Portrait Wrapper -->
+                            <div class="relative">
+                                <div class="w-32 h-32 rounded-full border-4 border-club-gold/80 p-1 bg-club-navy overflow-hidden shadow-xl flex items-center justify-center">
+                                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Peritas" alt="Foto Socio" class="w-full h-full bg-slate-900 object-cover" id="carnet-avatar">
+                                </div>
+                                <!-- Active Indicator Badge -->
+                                <div id="carnet-status-badge" class="absolute bottom-0 right-1 px-3 py-1 bg-emerald-500 text-club-dark font-black text-[10px] rounded-full border-2 border-[#0B132B] shadow-md uppercase tracking-wider">
+                                    ACTIVO
+                                </div>
+                            </div>
+
+                            <!-- Name and Number details -->
+                            <div class="text-center space-y-1">
+                                <h2 id="carnet-name" class="text-xl font-bold text-white uppercase tracking-tight">JUAN PÉREZ</h2>
+                                <p id="carnet-id" class="text-xs text-slate-300">SOCIO N° <span class="text-club-gold font-bold">1042</span></p>
+                                <p id="carnet-tier" class="inline-block px-3 py-0.5 text-[9px] font-extrabold bg-club-gold/10 text-club-gold border border-club-gold/30 rounded-full tracking-wider uppercase">CATEGORÍA PLENO</p>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Grid: QR and Info -->
+                        <div class="relative z-10 border-t border-slate-700/60 pt-4 flex items-center justify-between">
+                            <div class="space-y-1">
+                                <span class="text-[8px] text-slate-400 block uppercase tracking-wider">Vence en</span>
+                                <span id="carnet-expiry" class="text-[11px] text-white font-bold tracking-wider">31 DIC 2026</span>
+                            </div>
+                            
+                            <!-- Real Dynamic QR Code -->
+                            <div class="w-20 h-20 bg-white p-1 rounded-xl shadow-lg border border-club-gold/30 flex items-center justify-center">
+                                <img id="carnet-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Socio:1042|JuanPerez|Activo" alt="Código QR de Acceso" class="w-full h-full object-contain">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 text-center max-w-[340px]">
+                        Apoyá la pantalla del celular con este código QR en los molinetes inteligentes del estadio para validar tu ingreso automático en los partidos.
+                    </p>
+                </div>
+
+                <!-- Account administration details (Right) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-club-gold"></i> Datos Generales de tu Cuenta
+                    </h3>
+
+                    <!-- Stat Cards grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-club-navy border border-club-blue/40 p-4 rounded-xl space-y-2">
+                            <span class="text-xs text-slate-400 uppercase tracking-wide">Estado de Cuota</span>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="status-dot"></span>
+                                <span id="account-status-text" class="text-base font-bold text-emerald-400">Al día (Activo)</span>
+                            </div>
+                        </div>
+                        <div class="bg-club-navy border border-club-blue/40 p-4 rounded-xl space-y-2">
+                            <span class="text-xs text-slate-400 uppercase tracking-wide">Cuota Vigente</span>
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xl font-bold text-white">AR$ 5.000 <span class="text-xs text-slate-400 font-normal">/mes</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment History list -->
+                    <div class="bg-club-navy border border-club-blue/40 rounded-xl p-5 space-y-4">
+                        <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-club-gold"></i> Historial Reciente de Pagos
+                        </h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-club-blue/30 text-slate-400 uppercase">
+                                        <th class="py-2">Concepto</th>
+                                        <th class="py-2">Fecha</th>
+                                        <th class="py-2">Monto</th>
+                                        <th class="py-2">Canal</th>
+                                        <th class="py-2 text-right">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-payments-table">
+                                    <!-- Dynamic payments rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- VIEW: LOGIN (INICIAR SESIÓN) -->
+        <section id="view-login" class="hidden">
+            <div class="max-w-md mx-auto bg-club-navy border border-club-blue/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-club-gold to-yellow-500"></div>
+                <div class="text-center space-y-2">
+                    <h1 class="text-2xl font-extrabold text-white">Ingresá a tu Cuenta</h1>
+                    <p class="text-xs text-slate-400">Si sos socio del club, iniciá sesión para gestionar tu carnet digital</p>
+                </div>
+
+                <!-- Live alert feedback if required -->
+                <div id="login-alert" class="hidden p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center"></div>
+
+                <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico / DNI</label>
+                        <input type="email" id="login-email" required placeholder="socio@peritias.com" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
+                    </div>
+                    <div class="text-right">
+                        <a href="#" class="text-xs text-club-gold hover:underline">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black tracking-wide rounded-xl shadow-lg shadow-yellow-600/10 hover:scale-[1.01] transition">
+                        INGRESAR
+                    </button>
+                </form>
+
+                <div class="text-center border-t border-club-blue/30 pt-4">
+                    <p class="text-xs text-slate-400">¿Todavía no sos socio? <a href="#" onclick="navigate('register')" class="text-club-gold hover:underline font-bold">Asociate acá</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: REGISTER (ASOCIARSE) -->
+        <section id="view-register" class="hidden">
+            <div class="max-w-lg mx-auto bg-club-navy border border-club-blue/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-club-gold to-yellow-500"></div>
+                <div class="text-center space-y-2">
+                    <h1 class="text-2xl font-extrabold text-white">Asociate a Peritas FC</h1>
+                    <p class="text-xs text-slate-400">Completá el formulario digital y obtené tu carnet inteligente al instante</p>
+                </div>
+
+                <form onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Nombre Completo</label>
+                            <input type="text" id="reg-name" required placeholder="Ej: Lionel Messi" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">DNI (Documento)</label>
+                            <input type="text" id="reg-dni" required placeholder="Ej: 45123987" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico</label>
+                        <input type="email" id="reg-email" required placeholder="leo@messi.com" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña</label>
+                            <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Categoría</label>
+                            <select id="reg-category" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-club-gold transition text-sm">
+                                <option value="PLENO">Pleno (Acceso total) - AR$ 5.000/mes</option>
+                                <option value="ADHERENTE">Adherente - AR$ 3.000/mes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black tracking-wide rounded-xl shadow-lg shadow-yellow-600/10 hover:scale-[1.01] transition">
+                        CREAR MI CUENTA DE SOCIO
+                    </button>
+                </form>
+
+                <div class="text-center border-t border-club-blue/30 pt-4">
+                    <p class="text-xs text-slate-400">¿Ya sos socio registrado? <a href="#" onclick="navigate('login')" class="text-club-gold hover:underline font-bold">Iniciá sesión</a></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING MOBILE BOTTOM NAVIGATION (UX Premium for Mobile) -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-club-navy border-t border-club-blue/50 h-16 flex items-center justify-around px-4 z-40 shadow-2xl">
+        <button onclick="navigate('home')" id="mobile-nav-home" class="flex flex-col items-center gap-1 text-slate-400 text-xs active-tab">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span>Inicio</span>
+        </button>
+        <button onclick="navigate('news')" id="mobile-nav-news" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+            <i class="fa-solid fa-newspaper text-lg"></i>
+            <span>Noticias</span>
+        </button>
+        <button onclick="navigate('tickets')" id="mobile-nav-tickets" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+            <i class="fa-solid fa-ticket text-lg"></i>
+            <span>Entradas</span>
+        </button>
+        <button onclick="navigate('member')" id="mobile-nav-member" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+            <i class="fa-solid fa-id-card text-lg"></i>
+            <span>Socio</span>
+        </button>
+        <button onclick="openChatbotModal()" id="mobile-nav-bot" class="flex flex-col items-center gap-1 text-club-gold text-xs font-bold">
+            <i class="fa-solid fa-robot text-lg animate-bounce"></i>
+            <span>Bot</span>
+        </button>
+    </div>
+
+    <!-- NOTIFICATION POPUP COMPONENT (Dynamic Notifications) -->
+    <div id="custom-toast" class="fixed top-24 right-4 z-50 transition transform translate-x-96 bg-club-navy border-2 border-club-gold/80 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-sm">
+        <div id="toast-icon" class="text-club-gold text-lg">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+            <p id="toast-title" class="font-bold text-sm text-white">¡Operación Exitosa!</p>
+            <p id="toast-msg" class="text-xs text-slate-300">Detalles adicionales de tu acción.</p>
+        </div>
+    </div>
+
+    <!-- CHATBOT FLOATING BUTTON & DIALOG WIDGET -->
+    <div id="chatbot-wrapper" class="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 flex flex-col items-end">
+        <!-- Persistent Interactive Callout Badge -->
+        <div id="chatbot-badge-prompt" onclick="openChatbotModal()" class="cursor-pointer bg-gradient-to-r from-club-gold via-yellow-400 to-club-gold text-club-dark text-xs font-black px-3.5 py-2 rounded-2xl shadow-xl border-2 border-yellow-200 mb-2 flex items-center gap-2 animate-bounce hover:scale-105 transition">
+            <i class="fa-solid fa-robot text-base"></i>
+            <span>¡Hola! ¿Dudas sobre el club? Preguntame</span>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </div>
+
+        <!-- Chatbot Window -->
+        <div id="chatbot-modal" class="hidden w-[340px] sm:w-[380px] h-[480px] bg-club-navy border-2 border-club-gold/60 rounded-3xl shadow-2xl flex flex-col overflow-hidden mb-3 transition-all duration-300">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-club-dark via-club-navy to-club-blue p-4 border-b border-club-blue/40 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-club-gold flex items-center justify-center text-club-dark font-extrabold text-sm shadow">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white leading-tight">Asistente Virtual PFC</h4>
+                        <p id="chatbot-user-indicator" class="text-[10px] text-club-gold font-medium">Usuario: Invitado</p>
+                    </div>
+                </div>
+                <button onclick="toggleChatbot()" class="w-7 h-7 rounded-full bg-club-blue/50 text-slate-300 hover:text-white hover:bg-club-blue flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Chat Message History Body -->
+            <div id="chatbot-messages" class="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-950/60 custom-scrollbar text-xs">
+                <div class="bg-club-blue/40 text-slate-200 border border-club-blue/40 p-3 rounded-2xl rounded-tl-none max-w-[85%] space-y-1">
+                    <p class="font-bold text-club-gold text-[10px] uppercase">Asistente Peritas FC</p>
+                    <p>¡Hola! Soy tu asistente. ¿En qué puedo ayudarte hoy?</p>
+                </div>
+            </div>
+
+            <!-- Quick Suggestions Chips -->
+            <div class="p-2 bg-club-dark/80 border-t border-club-blue/20 flex gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
+                <button onclick="sendQuickMessage('¿Dónde queda la sede?')" class="whitespace-nowrap px-2.5 py-1 bg-club-blue/40 hover:bg-club-gold hover:text-club-dark text-slate-300 rounded-full border border-club-blue/50 transition">📍 Sede</button>
+                <button onclick="sendQuickMessage('¿Cómo me asocio?')" class="whitespace-nowrap px-2.5 py-1 bg-club-blue/40 hover:bg-club-gold hover:text-club-dark text-slate-300 rounded-full border border-club-blue/50 transition">💳 Asociarme</button>
+                <button onclick="sendQuickMessage('¿Cuándo juegan?')" class="whitespace-nowrap px-2.5 py-1 bg-club-blue/40 hover:bg-club-gold hover:text-club-dark text-slate-300 rounded-full border border-club-blue/50 transition">⚽ Próximo partido</button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 bg-club-navy border-t border-club-blue/40 flex items-center gap-2">
+                <input type="text" id="chatbot-input" onkeypress="if(event.key==='Enter') sendChatMessage()" placeholder="Escribí un mensaje..." class="flex-grow bg-slate-900 border border-club-blue/50 px-3 py-2 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-club-gold transition">
+                <button onclick="sendChatMessage()" class="w-9 h-9 bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-bold rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-md">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button onclick="toggleChatbot()" class="w-14 h-14 rounded-full bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black text-xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition relative border-2 border-club-dark group">
+            <i class="fa-solid fa-comments group-hover:rotate-12 transition transform"></i>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-club-dark animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-club-dark"></span>
+        </button>
+    </div>
+
+    <!-- MOCK FOOTER (DESKTOP) -->
+    <footer class="hidden md:block bg-club-dark border-t border-club-blue/20 py-8 text-center text-slate-400 text-xs">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p>© 2026 Peritas FC. El club de la tecnología. Todos los derechos reservados.</p>
+            <div class="flex gap-4 text-base">
+                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTION LOGIC / JAVASCRIPT STATE ENGINE -->
+    <script>
+        // MOCK STATE AND DATABASE IN LOCALSTORAGE
+        const MOCK_DB = {
+            news: [
+                {
+                    id: 1,
+                    category: 'futbol',
+                    title: '¡Entrenamiento matutino enfocado en el Superclásico!',
+                    summary: 'El plantel profesional de Peritas FC completó su rutina táctica preparándose para el enfrentamiento dominical.',
+                    date: 'Hoy',
+                    img: 'http://googleusercontent.com/image_collection/image_retrieval/11193738357791193146_1'
+                },
+                {
+                    id: 2,
+                    category: 'institucional',
+                    title: 'Inauguración del nuevo Centro de Cómputos PFC',
+                    summary: 'El presidente de la institución cortó la cinta del nuevo espacio tecnológico que digitalizará todas las filiales.',
+                    date: 'Ayer',
+                    img: 'http://googleusercontent.com/image_collection/image_retrieval/5458801617881165471_2'
+                },
+                {
+                    id: 3,
+                    category: 'futbol',
+                    title: 'Fichaje Bomba: Un talentoso volante se suma al club',
+                    summary: 'Se concretó la incorporación de nuestra nueva estrella para liderar la zona de mediocampo durante el torneo.',
+                    date: 'Hace 3 días',
+                    img: 'http://googleusercontent.com/image_collection/image_retrieval/11193738357791193146_0'
+                },
+                {
+                    id: 4,
+                    category: 'institucional',
+                    title: 'Convocatoria a Asamblea General Ordinaria 2026',
+                    summary: 'Invitamos a todos los socios activos a debatir el presupuesto y los nuevos proyectos de infraestructura del estadio.',
+                    date: 'Hace 5 días',
+                    img: 'http://googleusercontent.com/image_collection/image_retrieval/5458801617881165471_1'
+                }
+            ],
+            matches: [
+                {
+                    id: 101,
+                    opponent: 'Alianza Deportiva',
+                    tournament: 'Liga de Primera División',
+                    date: 'Domingo 19 de Julio, 17:00hs',
+                    stadium: 'Estadio Estrella Azul (Local)',
+                    ticketPricePopular: 8000,
+                    ticketPricePlatea: 15000,
+                    daysRemaining: 3
+                },
+                {
+                    id: 102,
+                    opponent: 'Unión Tecnológica',
+                    tournament: 'Copa de Campeones',
+                    date: 'Miércoles 29 de Julio, 21:00hs',
+                    stadium: 'Estadio Estrella Azul (Local)',
+                    ticketPricePopular: 9000,
+                    ticketPricePlatea: 18000,
+                    daysRemaining: 13
+                }
+            ],
+            defaultUser: {
+                id: 1042,
+                name: "Juan Pérez",
+                email: "socio@peritas.com",
+                password: "123456",
+                dni: "41982345",
+                category: "PLENO",
+                duesStatus: "AL_DIA", // "AL_DIA" or "PENDIENTE"
+                expiryDate: "31 DIC 2026"
+            }
+        };
+
+        // Initialize state inside localStorage if not present
+        if (!localStorage.getItem('pfc_users')) {
+            localStorage.setItem('pfc_users', JSON.stringify([MOCK_DB.defaultUser]));
+        }
+        if (!localStorage.getItem('pfc_payments')) {
+            const initialPayments = [
+                { id: "TX-991", concept: "Cuota Social Julio 2026", date: "05/07/2026", amount: "$5.000", method: "Tarjeta de Crédito", status: "Aprobado" },
+                { id: "TX-982", concept: "Cuota Social Junio 2026", date: "03/06/2026", amount: "$5.000", method: "Tarjeta de Crédito", status: "Aprobado" },
+                { id: "TX-975", concept: "Cuota Social Mayo 2026", date: "02/05/2026", amount: "$5.000", method: "Débito Automático", status: "Aprobado" }
+            ];
+            localStorage.setItem('pfc_payments', JSON.stringify(initialPayments));
+        }
+
+        let appState = {
+            currentView: 'home',
+            currentUser: JSON.parse(localStorage.getItem('pfc_current_user')) || null,
+            newsFilter: 'todas',
+            selectedTicketMatch: null
+        };
+
+        // INIT EXECUTION
+        window.onload = function() {
+            renderNews();
+            renderMatches();
+            updateAuthHeader();
+            startCountdown();
+            // Go to home view first
+            navigate('home');
+
+            // Auto open chatbot modal after 1 second so it's visually active on page load
+            setTimeout(() => {
+                openChatbotModal();
+            }, 1000);
+        };
+
+        // ROUTER / NAVIGATOR SYSTEM
+        function navigate(viewName) {
+            // Guard conditions
+            if (viewName === 'member' && !appState.currentUser) {
+                showToast("Acceso Privado", "Iniciá sesión para ver tu carnet digital.", "warning");
+                navigate('login');
+                return;
+            }
+
+            appState.currentView = viewName;
+            
+            // Hide all views
+            document.querySelectorAll('main > section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            // Show target view
+            const targetSection = document.getElementById(`view-${viewName}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            // Update Desktop Header active state
+            document.querySelectorAll('header nav a').forEach(el => {
+                el.classList.remove('active-tab');
+            });
+            const activeHeaderLink = document.getElementById(`nav-${viewName}`);
+            if (activeHeaderLink) {
+                activeHeaderLink.classList.add('active-tab');
+            }
+
+            // Update Mobile Bottom Nav active state
+            document.querySelectorAll('.md\\:hidden button').forEach(el => {
+                el.classList.remove('active-tab');
+            });
+            const activeMobileLink = document.getElementById(`mobile-nav-${viewName}`);
+            if (activeMobileLink) {
+                activeMobileLink.classList.add('active-tab');
+            }
+
+            // Execute specific view-driven renders
+            if (viewName === 'member') {
+                renderDashboard();
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // AUTHENTICATION CONTROLLER (MOCKING API ENDPOINTS)
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            const alertBox = document.getElementById('login-alert');
+
+            // API Endpoint Simulation: POST /api/auth/login
+            const users = JSON.parse(localStorage.getItem('pfc_users'));
+            const matchedUser = users.find(u => u.email === email && u.password === pass);
+
+            if (matchedUser) {
+                appState.currentUser = matchedUser;
+                localStorage.setItem('pfc_current_user', JSON.stringify(matchedUser));
+                updateAuthHeader();
+                showToast("¡Sesión Iniciada!", `Bienvenido de vuelta, ${matchedUser.name}.`, "success");
+                navigate('member');
+                // clear form
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+                alertBox.classList.add('hidden');
+            } else {
+                alertBox.innerText = "Credenciales incorrectas. Probá con socio@peritas.com / 123456";
+                alertBox.classList.remove('hidden');
+            }
+        }
+
+        function handleRegisterSubmit(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const dni = document.getElementById('reg-dni').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            const category = document.getElementById('reg-category').value;
+
+            // Simple validation of duplicate emails
+            const users = JSON.parse(localStorage.getItem('pfc_users'));
+            if (users.some(u => u.email === email)) {
+                showToast("Error de Registro", "El email ya se encuentra en uso por otro socio.", "warning");
+                return;
+            }
+
+            // Simulate Account Creation API
+            const newPartner = {
+                id: Math.floor(1000 + Math.random() * 9000), // Random Partner Number
+                name: name,
+                email: email,
+                password: pass,
+                dni: dni,
+                category: category,
+                duesStatus: "AL_DIA", // New partners start active
+                expiryDate: "31 DIC 2026"
+            };
+
+            users.push(newPartner);
+            localStorage.setItem('pfc_users', JSON.stringify(users));
+
+            // Log user in automatically
+            appState.currentUser = newPartner;
+            localStorage.setItem('pfc_current_user', JSON.stringify(newPartner));
+            
+            updateAuthHeader();
+            showToast("¡Socio Registrado!", `Bienvenido a Peritas FC, socio N° ${newPartner.id}.`, "success");
+            navigate('member');
+
+            // Clear inputs
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-dni').value = '';
+            document.getElementById('reg-email').value = '';
+            document.getElementById('reg-password').value = '';
+        }
+
+        function logout() {
+            appState.currentUser = null;
+            localStorage.removeItem('pfc_current_user');
+            updateAuthHeader();
+            showToast("Sesión Cerrada", "Esperamos verte pronto alentando al club.", "info");
+            navigate('home');
+        }
+
+        function updateAuthHeader() {
+            const anonPanel = document.getElementById('user-anonymous');
+            const profilePanel = document.getElementById('user-profile-menu');
+            
+            if (appState.currentUser) {
+                anonPanel.classList.add('hidden');
+                profilePanel.classList.remove('hidden');
+                document.getElementById('header-user-name').innerText = appState.currentUser.name;
+                document.getElementById('header-user-role').innerText = `Socio ${appState.currentUser.category} N° ${appState.currentUser.id}`;
+            } else {
+                anonPanel.classList.remove('hidden');
+                profilePanel.classList.add('hidden');
+            }
+            updateChatbotUserLabel();
+        }
+
+        function toggleChatbot() {
+            const modal = document.getElementById('chatbot-modal');
+            const promptBadge = document.getElementById('chatbot-badge-prompt');
+            
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                if (promptBadge) promptBadge.classList.add('hidden');
+            } else {
+                if (promptBadge) promptBadge.classList.remove('hidden');
+            }
+
+            updateChatbotUserLabel();
+            if (!modal.classList.contains('hidden')) {
+                const messagesBox = document.getElementById('chatbot-messages');
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+            }
+        }
+
+        function openChatbotModal() {
+            const modal = document.getElementById('chatbot-modal');
+            const promptBadge = document.getElementById('chatbot-badge-prompt');
+            
+            modal.classList.remove('hidden');
+            if (promptBadge) promptBadge.classList.add('hidden');
+            
+            updateChatbotUserLabel();
+            const messagesBox = document.getElementById('chatbot-messages');
+            if (messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;
+        }
+
+        function updateChatbotUserLabel() {
+            const indicator = document.getElementById('chatbot-user-indicator');
+            if (indicator) {
+                if (appState.currentUser) {
+                    indicator.innerText = `${appState.currentUser.name} (${appState.currentUser.email})`;
+                } else {
+                    indicator.innerText = "Usuario: Invitado";
+                }
+            }
+        }
+
+        function sendQuickMessage(text) {
+            document.getElementById('chatbot-input').value = text;
+            sendChatMessage();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatbot-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const messagesBox = document.getElementById('chatbot-messages');
+
+            // 1. Mostrar mensaje del usuario en pantalla
+            const userName = appState.currentUser ? appState.currentUser.name : 'Invitado';
+            const userEmail = appState.currentUser ? appState.currentUser.email : 'invitado@peritas.com';
+
+            const userMsgHtml = `
+                <div class="bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-medium p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%] space-y-0.5 shadow-md">
+                    <p class="font-bold text-[10px] uppercase opacity-75">Tú (${userName})</p>
+                    <p>${escapeHtml(text)}</p>
+                </div>
+            `;
+            messagesBox.insertAdjacentHTML('beforeend', userMsgHtml);
+            input.value = '';
+            messagesBox.scrollTop = messagesBox.scrollHeight;
+
+            // 2. Enviar datos al backend PHP (chatbot.php) vía fetch AJAX
+            fetch('chatbot.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `mensaje=${encodeURIComponent(text)}&nombre=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendBotReply(data.respuesta || "Respuesta recibida.");
+            })
+            .catch(() => {
+                // Si estás previsualizando sin servidor PHP activo, ejecuta el motor interactivo en el cliente
+                setTimeout(() => {
+                    const reply = generateClientBotReply(text, userName);
+                    appendBotReply(reply);
+                }, 500);
+            });
+        }
+
+        function appendBotReply(replyText) {
+            const messagesBox = document.getElementById('chatbot-messages');
+            const botMsgHtml = `
+                <div class="bg-club-blue/40 text-slate-200 border border-club-blue/40 p-3 rounded-2xl rounded-tl-none max-w-[85%] space-y-1 shadow">
+                    <p class="font-bold text-club-gold text-[10px] uppercase">Asistente Peritas FC</p>
+                    <p>${replyText}</p>
+                </div>
+            `;
+            messagesBox.insertAdjacentHTML('beforeend', botMsgHtml);
+            messagesBox.scrollTop = messagesBox.scrollHeight;
+        }
+
+        function generateClientBotReply(text, name) {
+            const msg = text.toLowerCase();
+            if (msg.includes('hola') || msg.includes('buenas')) {
+                return `¡Hola ${name}! ⚽ Bienvenido al Portal de Peritas FC. ¿En qué te puedo asesorar hoy?`;
+            } else if (msg.includes('asociar') || msg.includes('socio') || msg.includes('cuota')) {
+                return `Podés asociarte ingresando a la pestaña 'PORTAL SOCIO'. La cuota Pleno es de AR$ 5.000/mes con acceso libre a Tribuna Popular.`;
+            } else if (msg.includes('partido') || msg.includes('proximo') || msg.includes('próximo')) {
+                return `El próximo domingo jugamos contra Alianza Deportiva en el Estadio Estrella Azul a las 17:00 hs.`;
+            } else if (msg.includes('entrada') || msg.includes('ticket') || msg.includes('comprar')) {
+                return `Podés adquirir tus entradas en la sección 'ENTRADAS'. ¡Los socios con cuota al día entran gratis!`;
+            } else if (msg.includes('donde') || msg.includes('dónde') || msg.includes('sede') || msg.includes('ubicacion')) {
+                return `Nuestra sede y centro de entrenamiento está en la E.E.S.T. N° 4 de Berazategui (Calle 111 N° 1890 entre 18 y 19).`;
+            } else if (msg.includes('historial')) {
+                return `Guardamos todas las conversaciones en SQLite (chat.db) asociadas a tu nombre (${name}) y correo electrónico.`;
+            } else if (msg.includes('chau') || msg.includes('adios') || msg.includes('gracias')) {
+                return `¡Muchas gracias ${name}! Vamos Peritas FC 💙💛`;
+            }
+            return `No entendí bien tu consulta 🤔. Podés preguntarme sobre cuotas, asociarte, el próximo partido o la sede del club.`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        // RENDER: NEWS VIEWS
+        function renderNews() {
+            const homeNewsGrid = document.getElementById('home-news-grid');
+            const fullNewsGrid = document.getElementById('full-news-grid');
+
+            const filtered = appState.newsFilter === 'todas' 
+                ? MOCK_DB.news 
+                : MOCK_DB.news.filter(n => n.category === appState.newsFilter);
+
+            let homeHtml = '';
+            // Only take top 3 for Home screen
+            MOCK_DB.news.slice(0, 3).forEach(item => {
+                homeHtml += createNewsCardMarkup(item);
+            });
+            if(homeNewsGrid) homeNewsGrid.innerHTML = homeHtml;
+
+            let fullHtml = '';
+            filtered.forEach(item => {
+                fullHtml += createNewsCardMarkup(item);
+            });
+            if(fullNewsGrid) fullNewsGrid.innerHTML = fullHtml;
+        }
+
+        function createNewsCardMarkup(item) {
+            return `
+                <div class="bg-club-navy border border-club-blue/30 rounded-2xl overflow-hidden shadow-lg hover:-translate-y-1 transition duration-300">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-black bg-club-gold text-club-dark uppercase rounded-md tracking-wider">
+                            ${item.category}
+                        </span>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        <span class="text-[10px] text-slate-400 font-medium">${item.date}</span>
+                        <h4 class="text-base font-bold text-white line-clamp-2 leading-tight">${item.title}</h4>
+                        <p class="text-slate-300 text-xs line-clamp-3 leading-relaxed">${item.summary}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterNews(category) {
+            appState.newsFilter = category;
+            
+            // Toggle active visual states on filters
+            ['todas', 'futbol', 'institucional'].forEach(c => {
+                const btn = document.getElementById(`news-filter-${c}`);
+                if (c === category) {
+                    btn.classList.add('bg-club-gold', 'text-club-dark');
+                    btn.classList.remove('text-slate-300');
+                } else {
+                    btn.classList.remove('bg-club-gold', 'text-club-dark');
+                    btn.classList.add('text-slate-300');
+                }
+            });
+            renderNews();
+        }
+
+        // RENDER: TICKETS SELECTION
+        function renderMatches() {
+            const listContainer = document.getElementById('matches-list-container');
+            let html = '';
+
+            MOCK_DB.matches.forEach(m => {
+                html += `
+                    <div class="bg-club-navy border border-club-blue/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-club-gold/40 transition">
+                        <div class="space-y-2 text-center md:text-left">
+                            <span class="text-[10px] bg-club-blue/50 text-club-gold px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">${m.tournament}</span>
+                            <h4 class="text-lg font-black text-white uppercase">${m.opponent}</h4>
+                            <div class="text-xs text-slate-300 space-y-1">
+                                <p><i class="fa-solid fa-clock text-club-gold mr-1.5"></i>${m.date}</p>
+                                <p><i class="fa-solid fa-location-dot text-club-gold mr-2"></i>${m.stadium}</p>
+                            </div>
+                        </div>
+                        <button onclick="selectMatchForTickets(${m.id})" class="px-5 py-2.5 bg-club-blue hover:bg-club-gold hover:text-club-dark text-slate-100 font-extrabold text-xs rounded-xl tracking-wider transition">
+                            COMPRAR LOCALIDAD
+                        </button>
+                    </div>
+                `;
+            });
+            if(listContainer) listContainer.innerHTML = html;
+        }
+
+        function selectMatchForTickets(matchId) {
+            const match = MOCK_DB.matches.find(m => m.id === matchId);
+            appState.selectedTicketMatch = match;
+
+            const formContainer = document.getElementById('ticket-checkout-form');
+            const pricePanel = document.getElementById('checkout-price-panel');
+            const benefitLabel = document.getElementById('checkout-socio-benefit');
+
+            // Toggle active benefit box for active members
+            const isSocio = appState.currentUser && appState.currentUser.duesStatus === "AL_DIA";
+
+            formContainer.innerHTML = `
+                <div class="space-y-3">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Partido Elegido</p>
+                    <p class="text-sm font-bold text-white uppercase">${match.opponent}</p>
+                    
+                    <div class="space-y-1.5 pt-2">
+                        <label class="block text-xs text-slate-400 font-bold uppercase tracking-wide">Elegir Sector del Estadio</label>
+                        <select id="checkout-sector" onchange="calculateTicketPrice()" class="w-full bg-slate-900 border border-club-blue/50 px-3 py-2 rounded-lg text-slate-100 focus:outline-none focus:border-club-gold text-xs font-semibold">
+                            <option value="popular">Tribuna Popular Norte - AR$ ${match.ticketPricePopular}</option>
+                            <option value="popular_sur">Tribuna Popular Sur - AR$ ${match.ticketPricePopular}</option>
+                            <option value="platea">Platea Alta Lateral - AR$ ${match.ticketPricePlatea}</option>
+                            <option value="platea_baja">Platea Baja Preferencial - AR$ ${(match.ticketPricePlatea * 1.5).toFixed(0)}</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            benefitLabel.className = isSocio ? "block p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs" : "hidden";
+            pricePanel.classList.remove('hidden');
+
+            calculateTicketPrice();
+        }
+
+        function calculateTicketPrice() {
+            if (!appState.selectedTicketMatch) return;
+
+            const select = document.getElementById('checkout-sector');
+            const sector = select.value;
+            const match = appState.selectedTicketMatch;
+
+            let basePrice = 0;
+            if (sector.startsWith('popular')) {
+                basePrice = match.ticketPricePopular;
+            } else if (sector === 'platea') {
+                basePrice = match.ticketPricePlatea;
+            } else {
+                basePrice = match.ticketPricePlatea * 1.5;
+            }
+
+            // Calculation rules based on Member Status
+            let finalPrice = basePrice;
+            let discount = 0;
+
+            if (appState.currentUser && appState.currentUser.duesStatus === "AL_DIA") {
+                if (sector.startsWith('popular')) {
+                    discount = basePrice; // 100% discount on populars
+                    finalPrice = 0;
+                } else {
+                    discount = basePrice * 0.5; // 50% discount on plateas
+                    finalPrice = basePrice * 0.5;
+                }
+            }
+
+            document.getElementById('checkout-original-price').innerText = `AR$ ${basePrice.toLocaleString('es-AR')}`;
+            document.getElementById('checkout-discount-value').innerText = `-AR$ ${discount.toLocaleString('es-AR')}`;
+            document.getElementById('checkout-final-price').innerText = `AR$ ${finalPrice.toLocaleString('es-AR')}`;
+        }
+
+        function processTicketPayment() {
+            if (!appState.currentUser) {
+                showToast("Acceso Denegado", "Debés iniciar sesión o registrarte como socio para comprar entradas.", "warning");
+                navigate('login');
+                return;
+            }
+
+            const sector = document.getElementById('checkout-sector').value;
+            showToast("Procesando Pago", "Conectando de forma segura con la pasarela bancaria...", "info");
+
+            setTimeout(() => {
+                showToast("¡Compra Exitosa!", "Tu entrada digital fue generada. Recibirás el QR por email.", "success");
+                
+                // Add ticket simulated transaction in historical ledger if paid
+                const priceText = document.getElementById('checkout-final-price').innerText;
+                if (priceText !== "AR$ 0") {
+                    const payments = JSON.parse(localStorage.getItem('pfc_payments'));
+                    payments.unshift({
+                        id: `TX-${Math.floor(100+Math.random()*900)}`,
+                        concept: `Entrada vs ${appState.selectedTicketMatch.opponent} (${sector.toUpperCase()})`,
+                        date: new Date().toLocaleDateString(),
+                        amount: priceText.replace('AR$ ', '$'),
+                        method: "Tarjeta de Crédito",
+                        status: "Aprobado"
+                    });
+                    localStorage.setItem('pfc_payments', JSON.stringify(payments));
+                }
+                
+                // Reset panel
+                document.getElementById('ticket-checkout-form').innerHTML = `
+                    <div class="text-slate-400 text-sm py-4 text-center">
+                        <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2 block animate-bounce"></i>
+                        ¡Entrada Reservada con Éxito! Podés verla en tu correo o retirar en ventanilla del club.
+                    </div>
+                `;
+                document.getElementById('checkout-price-panel').classList.add('hidden');
+                document.getElementById('checkout-socio-benefit').classList.add('hidden');
+            }, 1500);
+        }
+
+        // RENDER: MEMBER DASHBOARD & CARNET DIGITAL
+        function renderDashboard() {
+            if (!appState.currentUser) return;
+
+            const user = appState.currentUser;
+            const payments = JSON.parse(localStorage.getItem('pfc_payments'));
+
+            // 1. Carnet Rendering
+            document.getElementById('carnet-name').innerText = user.name;
+            document.getElementById('carnet-id').innerText = user.id;
+            document.getElementById('carnet-tier').innerText = `CATEGORÍA ${user.category}`;
+            document.getElementById('carnet-avatar').src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name.replace(' ', '')}`;
+
+            const badge = document.getElementById('carnet-status-badge');
+            const dot = document.getElementById('status-dot');
+            const textStatus = document.getElementById('account-status-text');
+            const btnPay = document.getElementById('btn-pay-dues');
+
+            if (user.duesStatus === "AL_DIA") {
+                badge.innerText = "ACTIVO";
+                badge.className = "absolute bottom-0 right-1 px-3 py-1 bg-emerald-500 text-club-dark font-black text-[10px] rounded-full border-2 border-[#0B132B] shadow-md uppercase tracking-wider";
+                
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                textStatus.innerText = "Al día (Activo)";
+                textStatus.className = "text-base font-bold text-emerald-400";
+                btnPay.classList.add('hidden');
+            } else {
+                badge.innerText = "DEUDA";
+                badge.className = "absolute bottom-0 right-1 px-3 py-1 bg-red-500 text-white font-black text-[10px] rounded-full border-2 border-[#0B132B] shadow-md uppercase tracking-wider";
+                
+                dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse";
+                textStatus.innerText = "Cuota Impaga (Deudor)";
+                textStatus.className = "text-base font-bold text-red-400";
+                btnPay.classList.remove('hidden');
+            }
+
+            // Real dynamic QR with mock metadata
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SOCIO-PFC-${user.id}|NAME:${encodeURIComponent(user.name)}|STATUS:${user.duesStatus}`;
+            document.getElementById('carnet-qr').src = qrUrl;
+
+            // 2. Payments Table Rendering
+            const tableBody = document.getElementById('history-payments-table');
+            let tableHtml = '';
+            
+            payments.forEach(p => {
+                tableHtml += `
+                    <tr class="border-b border-club-blue/10 hover:bg-club-blue/20 transition">
+                        <td class="py-3 font-semibold text-white">${p.concept}</td>
+                        <td class="py-3 text-slate-300">${p.date}</td>
+                        <td class="py-3 font-extrabold text-club-gold">${p.amount}</td>
+                        <td class="py-3 text-slate-400">${p.method}</td>
+                        <td class="py-3 text-right">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-black ${p.status === 'Aprobado' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}">
+                                ${p.status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = tableHtml;
+        }
+
+        // SIMULATED TRANSACTION FOR UNPAID DUES
+        function simulateDuesPayment() {
+            if (!appState.currentUser) return;
+
+            showToast("Procesando Cuota", "Simulando pago de cuotas societarias pendientes...", "info");
+
+            setTimeout(() => {
+                appState.currentUser.duesStatus = "AL_DIA";
+                localStorage.setItem('pfc_current_user', JSON.stringify(appState.currentUser));
+                
+                // Update full localstorage db record
+                const users = JSON.parse(localStorage.getItem('pfc_users'));
+                const index = users.findIndex(u => u.id === appState.currentUser.id);
+                if (index !== -1) {
+                    users[index].duesStatus = "AL_DIA";
+                    localStorage.setItem('pfc_users', JSON.stringify(users));
+                }
+
+                // Append new transaction record
+                const payments = JSON.parse(localStorage.getItem('pfc_payments'));
+                payments.unshift({
+                    id: `TX-${Math.floor(100+Math.random()*900)}`,
+                    concept: `Cuota Social Julio 2026`,
+                    date: new Date().toLocaleDateString(),
+                    amount: "$5.000",
+                    method: "Mercado Pago Sim",
+                    status: "Aprobado"
+                });
+                localStorage.setItem('pfc_payments', JSON.stringify(payments));
+
+                showToast("¡Cuota Pagada!", "Tu estado fue restablecido a Socio Activo (Al día).", "success");
+                renderDashboard();
+            }, 1500);
+        }
+
+        // DYNAMIC NOTIFICATIONS (TOASTS SYSTEM)
+        function showToast(title, msg, type = 'success') {
+            const toast = document.getElementById('custom-toast');
+            const icon = document.getElementById('toast-icon');
+            
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = msg;
+
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                toast.className = "fixed top-24 right-4 z-50 transition transform duration-300 bg-slate-900 border-2 border-emerald-500 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-sm translate-x-0";
+            } else if (type === 'warning') {
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-400"></i>';
+                toast.className = "fixed top-24 right-4 z-50 transition transform duration-300 bg-slate-900 border-2 border-yellow-500 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-sm translate-x-0";
+            } else if (type === 'info') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-sky-400"></i>';
+                toast.className = "fixed top-24 right-4 z-50 transition transform duration-300 bg-slate-900 border-2 border-sky-400 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-sm translate-x-0";
+            }
+
+            // Slide out after 3.5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-96');
+            }, 3500);
+        }
+
+        // MATCH COUNTDOWN TIMER
+        function startCountdown() {
+            let targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 3); // 3 days in the future
+            targetDate.setHours(17, 0, 0, 0);
+
+            function updateTimer() {
+                const now = new Date();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                document.getElementById('days').innerText = String(d).padStart(2, '0');
+                document.getElementById('hours').innerText = String(h).padStart(2, '0');
+                document.getElementById('mins').innerText = String(m).padStart(2, '0');
+            }
+
+            const timerInterval = setInterval(updateTimer, 60000);
+            updateTimer(); // instant call
+        }
+    </script>
+</body>
+</html>
