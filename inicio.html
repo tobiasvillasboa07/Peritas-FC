@@ -1395,6 +1395,31 @@
             }
         }
         cargarNoticias();
+
+                   // IR A LA SECCIÓN SEGÚN EL # DE LA URL
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (window.PFC_USER) {
+                    const anon = document.getElementById('user-anonymous');
+                    const menu = document.getElementById('user-profile-menu');
+                    if (anon) anon.style.display = 'none';
+                    if (menu) menu.classList.remove('hidden');
+                    document.getElementById('header-user-name').innerText = window.PFC_USER.name;
+                    document.getElementById('header-user-role').innerText = 'Socio ' + (window.PFC_USER.categoria || '').split(' ')[0];
+                    window.logout = function () { window.location.href = '/src/views/auth/logout.php'; };
+                    const chatLabel = document.getElementById('chatbot-user-indicator');
+                    if (chatLabel) chatLabel.innerText = window.PFC_USER.name + ' (' + (window.PFC_USER.email || '') + ')';
+                }
+
+                const vista = location.hash.slice(1);
+                if (!vista) return;
+                if (vista === 'asistente') {
+                    if (typeof openChatbotModal === 'function') openChatbotModal();
+                } else if (typeof navigate === 'function') {
+                    navigate(vista);
+                }
+            }, 100);
+        });
     </script>
 </body>
 </html>

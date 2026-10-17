@@ -50,17 +50,38 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 </head>
 <body class="bg-[#0B132B] text-slate-100 font-['Poppins'] min-h-screen">
 
-<header class="bg-[#1C2541]/95 border-b border-[#3A506B]/30 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/" class="font-extrabold text-lg">PERITAS <span class="text-[#D4AF37]">FC</span></a>
-        <div class="flex items-center gap-4 text-sm">
-            <a href="/" class="text-slate-300 hover:text-white hidden sm:block">Inicio</a>
-            <a href="/src/views/entradas.php" class="text-slate-300 hover:text-white">Entradas</a>
+ <header class="bg-[#1C2541]/95 backdrop-blur-md border-b border-[#3A506B]/30 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#D4AF37] via-yellow-500 to-[#1C2541] p-0.5 shadow-md">
+                <div class="w-full h-full bg-[#1C2541] rounded-full flex items-center justify-center font-extrabold text-[#D4AF37] text-lg">PFC</div>
+            </div>
+            <div>
+                <span class="text-xl font-black tracking-tight text-white">PERITAS <span class="text-[#D4AF37]">FC</span></span>
+                <p class="text-[10px] text-slate-400 tracking-widest uppercase">El club de la tecnología</p>
+            </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 font-semibold text-sm tracking-wide text-slate-300">
+            <a href="/" class="hover:text-[#D4AF37] transition py-2">INICIO</a>
+            <a href="/#news" class="hover:text-[#D4AF37] transition py-2">NOTICIAS</a>
+            <a href="/src/views/entradas.php" class="hover:text-[#D4AF37] transition py-2">ENTRADAS</a>
+            <a href="/src/views/index.php" class="text-[#D4AF37] py-2 border-b-2 border-[#D4AF37]">PORTAL SOCIO</a>
             <?php if ($user['role'] === 'admin'): ?>
-                <a href="/src/views/admin/partidos.php" class="text-[#D4AF37] hover:text-yellow-300">Partidos</a>
-                <a href="/src/controllers/posts/index.php" class="text-[#D4AF37] hover:text-yellow-300">Noticias</a>
+                <a href="/src/views/admin/partidos.php" class="text-[#D4AF37] hover:text-yellow-300 transition py-2">PARTIDOS</a>
+                <a href="/src/controllers/posts/index.php" class="text-[#D4AF37] hover:text-yellow-300 transition py-2">ADMIN NOTICIAS</a>
             <?php endif; ?>
-            <span class="text-right leading-tight"><span class="block font-semibold"><?= e($user['name']) ?></span><span class="block text-xs text-[#D4AF37]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span></span>
+            <button type="button" onclick="window.openChatbotModal && openChatbotModal()"
+                class="px-3.5 py-1.5 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#D4AF37] rounded-full hover:bg-[#D4AF37] hover:text-[#0B132B] transition text-xs font-black">
+                🤖 ASISTENTE
+            </button>
+        </nav>
+
+        <div class="flex items-center gap-4 text-sm">
+            <span class="text-right leading-tight">
+                <span class="block font-semibold"><?= e($user['name']) ?></span>
+                <span class="block text-xs text-[#D4AF37]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span>
+            </span>
             <a href="/src/views/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#3A506B] hover:border-[#D4AF37] text-xs font-semibold">Salir</a>
         </div>
     </div>
@@ -159,5 +180,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         poner(); setInterval(poner, 30000);
     }
 </script>
+<script>window.PFC_USER = <?= json_encode(['name' => $user['name'], 'email' => $user['email']], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) ?>;</script>
+<script src="/assets/js/asistente.js"></script>
 </body>
 </html>
