@@ -368,8 +368,8 @@
                     <p class="text-sm text-slate-400 mt-1">Administrá tu credencial digital, pagos y estado de cuenta</p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="simulateDuesPayment()" id="btn-pay-dues" class="hidden px-5 py-2 text-xs font-black bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-600/10">
-                        PAGAR CUOTA (SIMULADO)
+                    <button onclick="pagarCuota()"  id="btn-pay-dues" class="hidden px-5 py-2 text-xs font-black bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-600/10">
+                        PAGAR CUOTA
                     </button>
                 </div>
             </div>
@@ -1180,45 +1180,41 @@
             document.getElementById('checkout-final-price').innerText = `AR$ ${finalPrice.toLocaleString('es-AR')}`;
         }
 
-        function processTicketPayment() {
-            if (!appState.currentUser) {
-                showToast("Acceso Denegado", "Debés iniciar sesión o registrarte como socio para comprar entradas.", "warning");
-                navigate('login');
-                return;
-            }
+        async function processTicketPayment() {
+    if (!appState.currentUser && !window.PFC_USER) {
+        showToast("Acceso Denegado", "Debés iniciar sesión para comprar entradas.", "warning");
+        navigate('login');
+        return;
+    }
+    const sector = document.getElementById('checkout-sector').value;
+    await iniciarPagoMercadoPago({ tipo: 'entrada', partidoId: appState.selectedTicketMatch.id, sector });
+}
 
-            const sector = document.getElementById('checkout-sector').value;
-            showToast("Procesando Pago", "Conectando de forma segura con la pasarela bancaria...", "info");
+async function pagarCuota() {
+    await iniciarPagoMercadoPago({ tipo: 'cuota' });
+}
 
-            setTimeout(() => {
-                showToast("¡Compra Exitosa!", "Tu entrada digital fue generada. Recibirás el QR por email.", "success");
-                
-                // Add ticket simulated transaction in historical ledger if paid
-                const priceText = document.getElementById('checkout-final-price').innerText;
-                if (priceText !== "AR$ 0") {
-                    const payments = JSON.parse(localStorage.getItem('pfc_payments'));
-                    payments.unshift({
-                        id: `TX-${Math.floor(100+Math.random()*900)}`,
-                        concept: `Entrada vs ${appState.selectedTicketMatch.opponent} (${sector.toUpperCase()})`,
-                        date: new Date().toLocaleDateString(),
-                        amount: priceText.replace('AR$ ', '$'),
-                        method: "Tarjeta de Crédito",
-                        status: "Aprobado"
-                    });
-                    localStorage.setItem('pfc_payments', JSON.stringify(payments));
-                }
-                
-                // Reset panel
-                document.getElementById('ticket-checkout-form').innerHTML = `
-                    <div class="text-slate-400 text-sm py-4 text-center">
-                        <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2 block animate-bounce"></i>
-                        ¡Entrada Reservada con Éxito! Podés verla en tu correo o retirar en ventanilla del club.
-                    </div>
-                `;
-                document.getElementById('checkout-price-panel').classList.add('hidden');
-                document.getElementById('checkout-socio-benefit').classList.add('hidden');
-            }, 1500);
+async function iniciarPagoMercadoPago(datos) {
+    try {
+        showToast("Procesando Pago", "Conectando con Mercado Pago...", "info");
+        const res = await fetch('/src/controllers/pagos/crear_preferencia.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el pago');
+
+        if (data.gratis) {
+            showToast("¡Entrada gratuita!", "Tu beneficio de socio cubre el total.", "success");
+            return;
         }
+        window.location.href = data.init_point;   // redirige al checkout de Mercado Pago
+    } catch (e) {
+        showToast("Error", e.message, "warning");
+    }
+}
+
 
         // RENDER: MEMBER DASHBOARD & CARNET DIGITAL
         function renderDashboard() {
