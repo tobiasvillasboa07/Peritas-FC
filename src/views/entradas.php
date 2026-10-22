@@ -8,7 +8,10 @@ function plata($n) { return $n == 0 ? 'Gratis' : 'AR$ ' . number_format((float)$
 
 require_once __DIR__ . '/../config/mercadopago.php';   // SECTORES, precio_sector() y crear_compra()
 $precio = fn($k) => precio_sector($pdo, $uid, $k);
-$esPleno = $precio('popular_norte') == 0;   // Pleno: Tribuna Popular gratis
+$esPleno = $precio('popular_norte') == 0;   // Pleno con la cuota al día: Tribuna Popular gratis
+$st = $pdo->prepare('SELECT categoria FROM users WHERE id = ?');
+$st->execute([$uid]);
+$debeCuota = str_starts_with((string)$st->fetchColumn(), 'Pleno') && !cuota_al_dia($pdo, $uid);
 
 $msg = $err = '';
 $avisos = ['aprobado' => '¡Pago aprobado! Tu entrada quedó guardada en "Mis entradas".',
@@ -47,6 +50,7 @@ $partidos = $q->fetchAll();
 <main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
     <h1 class="text-3xl font-black">Sacá tu entrada</h1>
     <?php if ($esPleno): ?><p class="text-sm text-[#D4AF37]">Como socio Pleno, la Tribuna Popular es gratis.</p><?php endif; ?>
+            <?php if ($debeCuota): ?><p class="text-sm text-yellow-300">Tenés la cuota de socio sin pagar, por eso la Tribuna Popular no te sale gratis. <a href="/src/views/index.php#cuotas" class="underline font-semibold">Pagá tu cuota</a> y volvé a sacar la entrada.</p><?php endif; ?>
     <?php if ($msg): ?><div class="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm rounded-xl px-4 py-3"><?= e($msg) ?></div><?php endif; ?>
     <?php if ($err): ?><div class="bg-red-500/10 border border-red-500/40 text-red-300 text-sm rounded-xl px-4 py-3"><?= e($err) ?></div><?php endif; ?>
     <?php foreach ($partidos as $m): $quedan = $m['capacity'] - $m['vendidas']; ?>

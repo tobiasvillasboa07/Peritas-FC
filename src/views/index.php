@@ -1,6 +1,7 @@
 <?php
 // Portal del socio: página a la que se llega después de iniciar sesión.
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/mercadopago.php';
 
 if (empty($_SESSION['user_id'])) { header('Location: /src/views/auth/login.php'); exit; }
 
@@ -10,11 +11,29 @@ $st->execute([$uid]);
 $user = $st->fetch();
 if (!$user) { session_destroy(); header('Location: /src/views/auth/login.php'); exit; }
 
-// Genera la cuota del mes actual si todavía no existe (no repite gracias al UNIQUE)
-if ($user['cuota_mensual'] > 0) {
-    $pdo->prepare('INSERT OR IGNORE INTO cuotas (user_id, periodo, monto) VALUES (?, ?, ?)')
-        ->execute([$uid, date('Y-m'), $user['cuota_mensual']]);
+    // Genera la cuota del mes actual como pendiente si todavía no existe
+generar_cuota_mes($pdo, $uid);
+
+// Pagar una cuota con Mercado Pago (el botón "Pagar" manda el id de la cuota)
+$errorPago = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuota_id'])) {
+    try {
+        header('Location: ' . crear_pago_cuota($pdo, $uid, $_POST['cuota_id']));
+        exit;
+    } catch (InvalidArgumentException $ex) {
+        $errorPago = $ex->getMessage();
+    } catch (Throwable $ex) {
+        error_log('Error creando el pago de la cuota: ' . $ex->getMessage());
+        $errorPago = 'No se pudo iniciar el pago con Mercado Pago. Intentá de nuevo.';
+    }
 }
+$avisosPago = [
+    'aprobado'  => ['¡Cuota pagada! Ya estás al día.', 'emerald'],
+    'pendiente' => ['Tu pago está pendiente. La cuota se marca como pagada cuando Mercado Pago lo acredite.', 'yellow'],
+    'rechazado' => ['El pago no se completó. Podés intentar de nuevo.', 'red'],
+    'error'     => ['No pudimos verificar el pago con Mercado Pago.', 'red'],
+];
+$avisoPago = $errorPago ? [$errorPago, 'red'] : ($avisosPago[$_GET['pago'] ?? ''] ?? null);
 
 $cuotas = $pdo->prepare('SELECT * FROM cuotas WHERE user_id = ? ORDER BY periodo DESC LIMIT 6');
 $cuotas->execute([$uid]);
@@ -123,14 +142,26 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         </section>
 
         <!-- Cuotas -->
-        <section class="lg:col-span-2 space-y-4">
+                <section id="cuotas" class="lg:col-span-2 space-y-4">
             <h2 class="text-xl font-bold">Mis cuotas</h2>
+            <?php if ($avisoPago): ?>
+                <div class="rounded-xl px-4 py-3 text-sm border bg-<?= $avisoPago[1] ?>-500/10 border-<?= $avisoPago[1] ?>-500/40 text-<?= $avisoPago[1] ?>-300"><?= e($avisoPago[0]) ?></div>
+            <?php endif; ?>
+            <?php if ($pendientes): ?>
+                <p class="text-sm text-yellow-300">Tenés <?= $pendientes ?> cuota<?= $pendientes > 1 ? 's' : '' ?> sin pagar. Hasta que estés al día no tenés los beneficios de socio (Tribuna Popular gratis).</p>
+            <?php endif; ?>
             <div class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 divide-y divide-[#3A506B]/30">
                 <?php foreach ($cuotas as $c): ?>
                     <div class="flex items-center justify-between px-5 py-3 text-sm">
                         <span>Cuota <?= e($c['periodo']) ?></span>
                         <span class="font-semibold"><?= plata($c['monto']) ?></span>
-                        <span class="px-2 py-0.5 rounded-full text-xs font-bold <?= $c['estado'] === 'pagada' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300' ?>"><?= e($c['estado']) ?></span>
+                                                <span class="px-2 py-0.5 rounded-full text-xs font-bold <?= $c['estado'] === 'pagada' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300' ?>"><?= e($c['estado']) ?></span>
+                        <?php if ($c['estado'] === 'pendiente'): ?>
+                            <form method="POST"><input type="hidden" name="cuota_id" value="<?= e($c['id']) ?>">
+                                <button class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-[#0B132B] font-bold text-xs hover:scale-105 transition">Pagar</button></form>
+                        <?php else: ?>
+                            <span class="w-[68px]"></span>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
                 <?php if (!$cuotas): ?><p class="px-5 py-4 text-sm text-slate-400">Tu categoría no tiene cuota mensual.</p><?php endif; ?>

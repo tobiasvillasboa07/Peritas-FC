@@ -19,5 +19,10 @@ if ($paymentId !== '' && $paymentId !== 'null') {
     }
 }
 
-header('Location: /index.php?pago=' . urlencode($estado) . '#tickets');
+// Las cuotas vuelven al portal del socio; las entradas, a la sección de entradas
+if (str_starts_with($_GET['external_reference'] ?? '', 'cuota-')) {
+    header('Location: /src/views/index.php?pago=' . urlencode($estado) . '#cuotas');
+} else {
+    header('Location: /index.php?pago=' . urlencode($estado) . '#tickets');
+}
 exit;

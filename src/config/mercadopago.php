@@ -35,12 +35,45 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS pagos (
     FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 )");
 
-/** Precio de un sector para un usuario: los socios Pleno tienen la Tribuna Popular gratis. */
+// Pagos de cuotas de socio (external_reference empieza con "cuota-")
+$pdo->exec("CREATE TABLE IF NOT EXISTS pagos_cuotas (
+    id TEXT PRIMARY KEY,
+    cuota_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
+    monto REAL NOT NULL CHECK (monto > 0),
+    estado TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'aprobado', 'rechazado')),
+    mp_payment_id TEXT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cuota_id) REFERENCES cuotas(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE CASCADE
+)");
+
+/** Crea la cuota del mes actual como pendiente si todavía no existe (no se repite gracias al UNIQUE). */
+function generar_cuota_mes(PDO $pdo, string $userId): void {
+    $st = $pdo->prepare('SELECT c.cuota_mensual FROM users u JOIN categorias c ON c.nombre = u.categoria WHERE u.id = ?');
+    $st->execute([$userId]);
+    $monto = (float)$st->fetchColumn();
+    if ($monto > 0) {
+        $pdo->prepare('INSERT OR IGNORE INTO cuotas (user_id, periodo, monto) VALUES (?, ?, ?)')
+            ->execute([$userId, date('Y-m'), $monto]);
+    }
+}
+
+/** true si el socio no debe ninguna cuota. */
+function cuota_al_dia(PDO $pdo, string $userId): bool {
+    generar_cuota_mes($pdo, $userId);
+    $st = $pdo->prepare("SELECT COUNT(*) FROM cuotas WHERE user_id = ? AND estado = 'pendiente'");
+    $st->execute([$userId]);
+    return $st->fetchColumn() == 0;
+}
+
+/** Precio de un sector: los socios Pleno CON LA CUOTA AL DÍA tienen la Tribuna Popular gratis. */
 function precio_sector(PDO $pdo, string $userId, string $sector): float {
     $st = $pdo->prepare('SELECT categoria FROM users WHERE id = ?');
     $st->execute([$userId]);
     $esPleno = str_starts_with((string)$st->fetchColumn(), 'Pleno');
-    return ($esPleno && SECTORES[$sector][2]) ? 0 : SECTORES[$sector][1];
+    $gratis = $esPleno && SECTORES[$sector][2] && cuota_al_dia($pdo, $userId);
+    return $gratis ? 0 : SECTORES[$sector][1];
 }
 
 /** URL pública del sitio (sirve en localhost, XAMPP y GitHub Codespaces). */
@@ -154,11 +187,82 @@ function crear_compra(PDO $pdo, string $userId, string $matchId, string $sector)
 }
 
 /**
+ * Inicia el pago de una cuota pendiente. Devuelve la URL de Mercado Pago (init_point).
+ */
+function crear_pago_cuota(PDO $pdo, string $userId, string $cuotaId): string {
+    $st = $pdo->prepare("SELECT * FROM cuotas WHERE id = ? AND user_id = ? AND estado = 'pendiente'");
+    $st->execute([$cuotaId, $userId]);
+    $cuota = $st->fetch();
+    if (!$cuota) throw new InvalidArgumentException('Esa cuota no existe o ya está pagada.');
+
+    $pagoId = 'cuota-' . bin2hex(random_bytes(8));
+    $pdo->prepare('INSERT INTO pagos_cuotas (id, cuota_id, user_id, monto) VALUES (?, ?, ?, ?)')
+        ->execute([$pagoId, $cuota['id'], $userId, $cuota['monto']]);
+
+    $base = url_base();
+    $retorno = $base . '/src/controllers/pagos/retorno.php';
+    $preferencia = [
+        'items' => [[
+            'id'          => 'cuota-' . $cuota['periodo'],
+            'title'       => 'Cuota social PERITAS FC - ' . $cuota['periodo'],
+            'quantity'    => 1,
+            'unit_price'  => (float)$cuota['monto'],
+            'currency_id' => 'ARS',
+        ]],
+        'external_reference' => $pagoId,
+        'back_urls' => ['success' => $retorno, 'failure' => $retorno, 'pending' => $retorno],
+        'statement_descriptor' => 'PERITAS FC',
+    ];
+    if (str_starts_with($base, 'https://')) {
+        $preferencia['auto_return'] = 'approved';
+        $preferencia['notification_url'] = $base . '/src/controllers/pagos/webhook.php';
+    }
+
+    try {
+        $resp = mp_api('POST', '/checkout/preferences', $preferencia);
+    } catch (Throwable $e) {
+        $pdo->prepare('DELETE FROM pagos_cuotas WHERE id = ?')->execute([$pagoId]);
+        throw $e;
+    }
+    return $resp['init_point'];
+}
+
+/** Marca como pagada la cuota de un pago aprobado en Mercado Pago. */
+function aplicar_pago_cuota(PDO $pdo, array $pagoMp, string $mpPaymentId): string {
+    $st = $pdo->prepare('SELECT * FROM pagos_cuotas WHERE id = ?');
+    $st->execute([$pagoMp['external_reference'] ?? '']);
+    $pago = $st->fetch();
+    if (!$pago) throw new RuntimeException('El pago no corresponde a ninguna cuota registrada.');
+    if ($pago['estado'] === 'aprobado') return 'aprobado';
+
+    $estadoMp = $pagoMp['status'] ?? '';
+    if ($estadoMp === 'approved' && (float)$pagoMp['transaction_amount'] >= (float)$pago['monto']) {
+        $pdo->beginTransaction();
+        $pdo->prepare("UPDATE pagos_cuotas SET estado = 'aprobado', mp_payment_id = ? WHERE id = ?")
+            ->execute([$mpPaymentId, $pago['id']]);
+        $pdo->prepare("UPDATE cuotas SET estado = 'pagada', fecha_pago = ? WHERE id = ?")
+            ->execute([date('Y-m-d H:i:s'), $pago['cuota_id']]);
+        $pdo->commit();
+        return 'aprobado';
+    }
+    if (in_array($estadoMp, ['rejected', 'cancelled', 'refunded', 'charged_back'], true)) {
+        $pdo->prepare("UPDATE pagos_cuotas SET estado = 'rechazado', mp_payment_id = ? WHERE id = ?")
+            ->execute([$mpPaymentId, $pago['id']]);
+        return 'rechazado';
+    }
+    return 'pendiente';
+}
+
+
+/**
  * Consulta un pago en Mercado Pago y actualiza la base.
  * Si está aprobado crea la entrada (una sola vez). Devuelve el estado: aprobado, pendiente o rechazado.
  */
 function confirmar_pago(PDO $pdo, string $mpPaymentId): string {
     $pagoMp = mp_api('GET', '/v1/payments/' . rawurlencode($mpPaymentId));
+        if (str_starts_with($pagoMp['external_reference'] ?? '', 'cuota-')) {
+        return aplicar_pago_cuota($pdo, $pagoMp, $mpPaymentId);
+    }
 
     $st = $pdo->prepare('SELECT * FROM pagos WHERE id = ?');
     $st->execute([$pagoMp['external_reference'] ?? '']);
