@@ -23,4 +23,5 @@ Thumbs.db
 
 # Base de datos SQLite
 *.sqlite3
-*.db*.sqlite
+*.db
+*.sqlite
