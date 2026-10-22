@@ -1,0 +1,9 @@
+dbs:
+  - path: /app/database.sqlite
+    replicas:
+      - type: s3
+        bucket: peritasfc-db-2026
+        path: database
+        endpoint: https://s3.us-east-005.backblazeb2.com
+        region: us-east-005
+        force-path-style: true
