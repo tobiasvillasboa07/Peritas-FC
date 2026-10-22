@@ -39,6 +39,7 @@ El objetivo es comprender cómo se organiza un proyecto PHP con separación de v
    ```bash
       php -S localhost:8000
    ```
+   php -S localhost:8000
 
 6. Abrir en el navegador:
 
