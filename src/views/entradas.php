@@ -6,38 +6,28 @@ $uid = $_SESSION['user_id'];
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function plata($n) { return $n == 0 ? 'Gratis' : 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 
-// sector => [nombre, precio, es_popular]
-const SECTORES = [
-    'popular_norte' => ['Tribuna Popular Norte', 8000, true],
-    'popular_sur'   => ['Tribuna Popular Sur', 8000, true],
-    'platea_alta'   => ['Platea Alta Lateral', 15000, false],
-    'platea_baja'   => ['Platea Baja Preferencial', 22500, false],
-];
-
-$st = $pdo->prepare('SELECT categoria FROM users WHERE id = ?');
-$st->execute([$uid]);
-$esPleno = str_starts_with((string)$st->fetchColumn(), 'Pleno');   // Pleno: Tribuna Popular gratis
-$precio = fn($k) => ($esPleno && SECTORES[$k][2]) ? 0 : SECTORES[$k][1];
+require_once __DIR__ . '/../config/mercadopago.php';   // SECTORES, precio_sector() y crear_compra()
+$precio = fn($k) => precio_sector($pdo, $uid, $k);
 
 $msg = $err = '';
+$avisos = ['aprobado' => '¡Pago aprobado! Tu entrada quedó guardada en "Mis entradas".',
+           'pendiente' => 'Tu pago está pendiente. La entrada aparece cuando Mercado Pago lo acredite.'];
+if (isset($avisos[$_GET['pago'] ?? ''])) $msg = $avisos[$_GET['pago']];
+elseif (isset($_GET['pago'])) $err = 'El pago no se completó. Podés intentar de nuevo.';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $k = $_POST['sector'] ?? '';
-    $mid = $_POST['match_id'] ?? '';
-    $ok = $pdo->prepare('SELECT 1 FROM matches WHERE id = ? AND match_date >= ?');
-    $ok->execute([$mid, date('Y-m-d H:i:s')]);
-    if (!isset(SECTORES[$k]) || !$ok->fetchColumn()) {
-        $err = 'Elegí un partido y un sector válidos.';
-    } else {
-        try {
-            $pdo->prepare('INSERT INTO tickets (user_id, match_id, sector, price) VALUES (?, ?, ?, ?)')
-                ->execute([$uid, $mid, SECTORES[$k][0], $precio($k)]);
-            $msg = '¡Listo! Tu entrada quedó guardada en "Mis entradas".';
-        } catch (PDOException $ex) {
-            $err = str_contains($ex->getMessage(), 'No quedan') ? 'No quedan entradas para ese partido.'
-                 : ($ex->getCode() === '23000' ? 'Ya tenés una entrada para ese partido y sector.' : 'No se pudo sacar la entrada.');
-        }
+    try {
+        $r = crear_compra($pdo, $uid, $_POST['match_id'] ?? '', $_POST['sector'] ?? '');
+        if (isset($r['init_point'])) { header('Location: ' . $r['init_point']); exit; }
+        $msg = '¡Listo! Tu entrada quedó guardada en "Mis entradas".';
+    } catch (InvalidArgumentException $ex) {
+        $err = $ex->getMessage();
+    } catch (Throwable $ex) {
+        error_log('Error creando el pago: ' . $ex->getMessage());
+        $err = 'No se pudo iniciar el pago con Mercado Pago. Intentá de nuevo.';
     }
 }
+
 
 $q = $pdo->prepare('SELECT m.*, (SELECT COUNT(*) FROM tickets t WHERE t.match_id = m.id) AS vendidas FROM matches m WHERE match_date >= ? ORDER BY match_date');
 $q->execute([date('Y-m-d H:i:s')]);

@@ -368,8 +368,8 @@
                     <p class="text-sm text-slate-400 mt-1">Administrá tu credencial digital, pagos y estado de cuenta</p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="simulateDuesPayment()" id="btn-pay-dues" class="hidden px-5 py-2 text-xs font-black bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-600/10">
-                        PAGAR CUOTA (SIMULADO)
+                    <button onclick="pagarCuota()"  id="btn-pay-dues" class="hidden px-5 py-2 text-xs font-black bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-600/10">
+                        PAGAR CUOTA
                     </button>
                 </div>
             </div>
@@ -738,6 +738,10 @@
             localStorage.setItem('pfc_payments', JSON.stringify(initialPayments));
         }
 
+        // Si la página viene de index.php, usamos los partidos reales de la base
+        if (window.PFC_MATCHES) MOCK_DB.matches = window.PFC_MATCHES;
+
+
         let appState = {
             currentView: 'home',
             currentUser: JSON.parse(localStorage.getItem('pfc_current_user')) || null,
@@ -1089,7 +1093,7 @@
         // RENDER: TICKETS SELECTION
         function renderMatches() {
             const listContainer = document.getElementById('matches-list-container');
-            let html = '';
+            let html = MOCK_DB.matches.length ? '' : '<p class="text-slate-400 text-sm">No hay partidos próximos cargados todavía.</p>';
 
             MOCK_DB.matches.forEach(m => {
                 html += `
@@ -1102,7 +1106,7 @@
                                 <p><i class="fa-solid fa-location-dot text-club-gold mr-2"></i>${m.stadium}</p>
                             </div>
                         </div>
-                        <button onclick="selectMatchForTickets(${m.id})" class="px-5 py-2.5 bg-club-blue hover:bg-club-gold hover:text-club-dark text-slate-100 font-extrabold text-xs rounded-xl tracking-wider transition">
+                        <button onclick="selectMatchForTickets('${m.id}')" class="px-5 py-2.5 bg-club-blue hover:bg-club-gold hover:text-club-dark text-slate-100 font-extrabold text-xs rounded-xl tracking-wider transition">
                             COMPRAR LOCALIDAD
                         </button>
                     </div>
@@ -1111,16 +1115,30 @@
             if(listContainer) listContainer.innerHTML = html;
         }
 
+                // Sectores del partido: los reales vienen de la base (index.php), si no, usamos los del simulado
+        function sectoresDelPartido(match) {
+            if (match.sectores) return match.sectores;
+            const socio = appState.currentUser && appState.currentUser.duesStatus === "AL_DIA";
+            const sectores = [
+                { key: 'popular_norte', nombre: 'Tribuna Popular Norte', precio: match.ticketPricePopular },
+                { key: 'popular_sur', nombre: 'Tribuna Popular Sur', precio: match.ticketPricePopular },
+                { key: 'platea_alta', nombre: 'Platea Alta Lateral', precio: match.ticketPricePlatea },
+                { key: 'platea_baja', nombre: 'Platea Baja Preferencial', precio: Math.round(match.ticketPricePlatea * 1.5) }
+            ];
+            sectores.forEach(s => s.final = !socio ? s.precio : (s.key.startsWith('popular') ? 0 : s.precio * 0.5));
+            return sectores;
+        }
+
         function selectMatchForTickets(matchId) {
-            const match = MOCK_DB.matches.find(m => m.id === matchId);
+            const match = MOCK_DB.matches.find(m => String(m.id) === String(matchId));
             appState.selectedTicketMatch = match;
 
             const formContainer = document.getElementById('ticket-checkout-form');
             const pricePanel = document.getElementById('checkout-price-panel');
             const benefitLabel = document.getElementById('checkout-socio-benefit');
 
-            // Toggle active benefit box for active members
-            const isSocio = appState.currentUser && appState.currentUser.duesStatus === "AL_DIA";
+            const sectores = sectoresDelPartido(match);
+            const tieneBeneficio = sectores.some(s => s.final < s.precio);
 
             formContainer.innerHTML = `
                 <div class="space-y-3">
@@ -1130,16 +1148,13 @@
                     <div class="space-y-1.5 pt-2">
                         <label class="block text-xs text-slate-400 font-bold uppercase tracking-wide">Elegir Sector del Estadio</label>
                         <select id="checkout-sector" onchange="calculateTicketPrice()" class="w-full bg-slate-900 border border-club-blue/50 px-3 py-2 rounded-lg text-slate-100 focus:outline-none focus:border-club-gold text-xs font-semibold">
-                            <option value="popular">Tribuna Popular Norte - AR$ ${match.ticketPricePopular}</option>
-                            <option value="popular_sur">Tribuna Popular Sur - AR$ ${match.ticketPricePopular}</option>
-                            <option value="platea">Platea Alta Lateral - AR$ ${match.ticketPricePlatea}</option>
-                            <option value="platea_baja">Platea Baja Preferencial - AR$ ${(match.ticketPricePlatea * 1.5).toFixed(0)}</option>
+                            ${sectores.map(s => `<option value="${s.key}">${s.nombre} - AR$ ${s.precio.toLocaleString('es-AR')}</option>`).join('')}
                         </select>
                     </div>
                 </div>
             `;
 
-            benefitLabel.className = isSocio ? "block p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs" : "hidden";
+            benefitLabel.className = tieneBeneficio ? "block p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs" : "hidden";
             pricePanel.classList.remove('hidden');
 
             calculateTicketPrice();
@@ -1148,77 +1163,71 @@
         function calculateTicketPrice() {
             if (!appState.selectedTicketMatch) return;
 
-            const select = document.getElementById('checkout-sector');
-            const sector = select.value;
-            const match = appState.selectedTicketMatch;
+            const key = document.getElementById('checkout-sector').value;
+            const sector = sectoresDelPartido(appState.selectedTicketMatch).find(s => s.key === key);
+            const discount = sector.precio - sector.final;
 
-            let basePrice = 0;
-            if (sector.startsWith('popular')) {
-                basePrice = match.ticketPricePopular;
-            } else if (sector === 'platea') {
-                basePrice = match.ticketPricePlatea;
-            } else {
-                basePrice = match.ticketPricePlatea * 1.5;
-            }
-
-            // Calculation rules based on Member Status
-            let finalPrice = basePrice;
-            let discount = 0;
-
-            if (appState.currentUser && appState.currentUser.duesStatus === "AL_DIA") {
-                if (sector.startsWith('popular')) {
-                    discount = basePrice; // 100% discount on populars
-                    finalPrice = 0;
-                } else {
-                    discount = basePrice * 0.5; // 50% discount on plateas
-                    finalPrice = basePrice * 0.5;
-                }
-            }
-
-            document.getElementById('checkout-original-price').innerText = `AR$ ${basePrice.toLocaleString('es-AR')}`;
+            document.getElementById('checkout-original-price').innerText = `AR$ ${sector.precio.toLocaleString('es-AR')}`;
             document.getElementById('checkout-discount-value').innerText = `-AR$ ${discount.toLocaleString('es-AR')}`;
-            document.getElementById('checkout-final-price').innerText = `AR$ ${finalPrice.toLocaleString('es-AR')}`;
+            document.getElementById('checkout-final-price').innerText = `AR$ ${sector.final.toLocaleString('es-AR')}`;
         }
 
-        function processTicketPayment() {
-            if (!appState.currentUser) {
+        // PAGO CON MERCADO PAGO: le pide al servidor la preferencia y redirige al checkout
+        async function processTicketPayment() {
+            if (!window.PFC_USER) {
                 showToast("Acceso Denegado", "Debés iniciar sesión o registrarte como socio para comprar entradas.", "warning");
                 navigate('login');
                 return;
             }
+            if (!appState.selectedTicketMatch || !appState.selectedTicketMatch.sectores) {
+                showToast("Error", "Ese partido no está cargado en la base de datos.", "warning");
+                return;
+            }
 
-            const sector = document.getElementById('checkout-sector').value;
-            showToast("Procesando Pago", "Conectando de forma segura con la pasarela bancaria...", "info");
+            const boton = document.querySelector('#checkout-price-panel button');
+            boton.disabled = true;
+            showToast("Procesando Pago", "Conectando con Mercado Pago...", "info");
 
-            setTimeout(() => {
-                showToast("¡Compra Exitosa!", "Tu entrada digital fue generada. Recibirás el QR por email.", "success");
-                
-                // Add ticket simulated transaction in historical ledger if paid
-                const priceText = document.getElementById('checkout-final-price').innerText;
-                if (priceText !== "AR$ 0") {
-                    const payments = JSON.parse(localStorage.getItem('pfc_payments'));
-                    payments.unshift({
-                        id: `TX-${Math.floor(100+Math.random()*900)}`,
-                        concept: `Entrada vs ${appState.selectedTicketMatch.opponent} (${sector.toUpperCase()})`,
-                        date: new Date().toLocaleDateString(),
-                        amount: priceText.replace('AR$ ', '$'),
-                        method: "Tarjeta de Crédito",
-                        status: "Aprobado"
-                    });
-                    localStorage.setItem('pfc_payments', JSON.stringify(payments));
+            try {
+                const resp = await fetch('/src/controllers/pagos/crear.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        match_id: appState.selectedTicketMatch.id,
+                        sector: document.getElementById('checkout-sector').value
+                    })
+                });
+                const data = await resp.json();
+                if (!data.ok) {
+                    if (data.detalle) console.error('Mercado Pago:', data.detalle);
+                    throw new Error(data.error || 'No se pudo iniciar el pago.');
                 }
-                
-                // Reset panel
-                document.getElementById('ticket-checkout-form').innerHTML = `
-                    <div class="text-slate-400 text-sm py-4 text-center">
-                        <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2 block animate-bounce"></i>
-                        ¡Entrada Reservada con Éxito! Podés verla en tu correo o retirar en ventanilla del club.
-                    </div>
-                `;
-                document.getElementById('checkout-price-panel').classList.add('hidden');
-                document.getElementById('checkout-socio-benefit').classList.add('hidden');
-            }, 1500);
+
+                if (data.gratis) {
+                    mostrarEntradaConfirmada();
+                    showToast("¡Entrada Reservada!", "Como socio, esta entrada es gratis. Ya la tenés en tu portal.", "success");
+                    return;
+                }
+                window.location.href = data.init_point;
+            } catch (error) {
+                console.error(error);
+                showToast("Error", error.message.includes('JSON') ? 'No se pudo iniciar el pago. Intentá de nuevo.' : error.message, "warning");
+            } finally {
+                boton.disabled = false;
+            }
         }
+
+        function mostrarEntradaConfirmada() {
+            document.getElementById('ticket-checkout-form').innerHTML = `
+                <div class="text-slate-400 text-sm py-4 text-center">
+                    <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2 block animate-bounce"></i>
+                    ¡Entrada confirmada! Podés verla en "Mis entradas" de tu portal.
+                </div>
+            `;
+            document.getElementById('checkout-price-panel').classList.add('hidden');
+            document.getElementById('checkout-socio-benefit').classList.add('hidden');
+        }
+
 
         // RENDER: MEMBER DASHBOARD & CARNET DIGITAL
         function renderDashboard() {
@@ -1410,6 +1419,20 @@
                     const chatLabel = document.getElementById('chatbot-user-indicator');
                     if (chatLabel) chatLabel.innerText = window.PFC_USER.name + ' (' + (window.PFC_USER.email || '') + ')';
                 }
+
+                                // Vuelta desde Mercado Pago (retorno.php agrega ?pago=...)
+                const pago = new URLSearchParams(location.search).get('pago');
+                const avisos = {
+                    aprobado: ["¡Pago aprobado!", "Tu entrada ya está en \"Mis entradas\" de tu portal.", "success"],
+                    pendiente: ["Pago pendiente", "Mercado Pago todavía está procesando el pago. Te avisamos cuando se acredite.", "info"],
+                    rechazado: ["Pago rechazado", "El pago no se completó. Podés intentar de nuevo.", "warning"],
+                    error: ["Error", "No pudimos verificar el pago con Mercado Pago.", "warning"]
+                };
+                if (avisos[pago]) {
+                    showToast(...avisos[pago]);
+                    history.replaceState(null, '', location.pathname + location.hash);
+                }
+
 
                 const vista = location.hash.slice(1);
                 if (!vista) return;
