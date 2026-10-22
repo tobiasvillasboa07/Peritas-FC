@@ -749,14 +749,22 @@
             selectedTicketMatch: null
         };
 
+                // Si se entra con /#news o /#tickets, mostrar esa sección enseguida (sin pasar por Inicio)
+        const vistaInicial = location.hash.slice(1);
+        if (['news', 'tickets'].includes(vistaInicial)) {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-' + vistaInicial).classList.remove('hidden');
+        }
+
+
         // INIT EXECUTION
         window.onload = function() {
             renderNews();
             renderMatches();
             updateAuthHeader();
             startCountdown();
-            // Go to home view first
-            navigate('home');
+            // Ir a la sección del # de la URL (por ej. /#news) o al inicio
+            navigate(['news', 'tickets'].includes(vistaInicial) ? vistaInicial : 'home');
 
             // Auto open chatbot modal after 1 second so it's visually active on page load
             setTimeout(() => {
