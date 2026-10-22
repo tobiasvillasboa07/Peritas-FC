@@ -8,6 +8,7 @@ function plata($n) { return $n == 0 ? 'Gratis' : 'AR$ ' . number_format((float)$
 
 require_once __DIR__ . '/../config/mercadopago.php';   // SECTORES, precio_sector() y crear_compra()
 $precio = fn($k) => precio_sector($pdo, $uid, $k);
+$esPleno = $precio('popular_norte') == 0;   // Pleno: Tribuna Popular gratis
 
 $msg = $err = '';
 $avisos = ['aprobado' => '¡Pago aprobado! Tu entrada quedó guardada en "Mis entradas".',
