@@ -73,7 +73,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             <?php endif; ?>
             <button type="button" onclick="window.openChatbotModal && openChatbotModal()"
                 class="px-3.5 py-1.5 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#D4AF37] rounded-full hover:bg-[#D4AF37] hover:text-[#0B132B] transition text-xs font-black">
-                🤖 ASISTENTE
+                                <i class="fa-solid fa-robot text-sm animate-pulse"></i> ASISTENTE
             </button>
         </nav>
 
