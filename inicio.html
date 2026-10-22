@@ -938,15 +938,15 @@
             if (messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;
         }
 
+                function usuarioChat() {
+            if (window.PFC_USER) return window.PFC_USER;   // sesión real (PHP)
+            return appState.currentUser;                   // login simulado
+        }
+
         function updateChatbotUserLabel() {
             const indicator = document.getElementById('chatbot-user-indicator');
-            if (indicator) {
-                if (appState.currentUser) {
-                    indicator.innerText = `${appState.currentUser.name} (${appState.currentUser.email})`;
-                } else {
-                    indicator.innerText = "Usuario: Invitado";
-                }
-            }
+            const u = usuarioChat();
+            if (indicator) indicator.innerText = u ? `${u.name} (${u.email || ''})` : "Usuario: Invitado";
         }
 
         function sendQuickMessage(text) {
@@ -962,8 +962,9 @@
             const messagesBox = document.getElementById('chatbot-messages');
 
             // 1. Mostrar mensaje del usuario en pantalla
-            const userName = appState.currentUser ? appState.currentUser.name : 'Invitado';
-            const userEmail = appState.currentUser ? appState.currentUser.email : 'invitado@peritas.com';
+                        const u = usuarioChat();
+            const userName = u ? u.name : 'Invitado';
+            const userEmail = u ? (u.email || '') : 'invitado@peritas.com';
 
             const userMsgHtml = `
                 <div class="bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-medium p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%] space-y-0.5 shadow-md">
