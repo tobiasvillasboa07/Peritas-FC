@@ -1,0 +1,14 @@
+{
+  "sectores": [
+    { "clave": "popular_norte", "nombre": "Tribuna Popular Norte",    "precio": 8000,  "popular": true },
+    { "clave": "popular_sur",   "nombre": "Tribuna Popular Sur",      "precio": 8000,  "popular": true },
+    { "clave": "platea_alta",   "nombre": "Platea Alta Lateral",      "precio": 15000, "popular": false },
+    { "clave": "platea_baja",   "nombre": "Platea Baja Preferencial", "precio": 22500, "popular": false }
+  ],
+  "partidos": [
+    { "rival": "Berazategui",       "torneo": "Liga de Primera División", "estadio": "Estadio Estrella Azul", "fecha": "2026-10-25 15:00", "cupo": 500 },
+    { "rival": "Alianza Deportiva", "torneo": "Liga de Primera División", "estadio": "Estadio Estrella Azul", "fecha": "2026-11-08 17:00", "cupo": 500 },
+    { "rival": "Unión Tecnológica", "torneo": "Copa de Campeones",        "estadio": "Estadio Estrella Azul", "fecha": "2026-11-22 21:00", "cupo": 500 },
+    { "rival": "Deportivo Sur",     "torneo": "Liga de Primera División", "estadio": "Estadio Estrella Azul", "fecha": "2026-12-06 18:00", "cupo": 500 }
+  ]
+}

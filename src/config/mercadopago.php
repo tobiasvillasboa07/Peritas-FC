@@ -12,13 +12,9 @@
  */
 require_once __DIR__ . '/env.php';
 
-// sector => [nombre, precio, es_popular]
-const SECTORES = [
-    'popular_norte' => ['Tribuna Popular Norte', 8000, true],
-    'popular_sur'   => ['Tribuna Popular Sur', 8000, true],
-    'platea_alta'   => ['Platea Alta Lateral', 15000, false],
-    'platea_baja'   => ['Platea Baja Preferencial', 22500, false],
-];
+// Sectores y precios de las entradas: se leen de assets/data/partidos.json
+require_once __DIR__ . '/partidos.php';
+define('SECTORES', sectores_desde_json());
 
 // Tabla de pagos (se crea sola si la base ya existía antes de este cambio)
 $pdo->exec("CREATE TABLE IF NOT EXISTS pagos (
@@ -34,6 +30,9 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS pagos (
     FOREIGN KEY (user_id)  REFERENCES users(id)   ON DELETE CASCADE,
     FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 )");
+
+// Partidos de partidos.json -> tabla matches (solo cuando el archivo cambió)
+sincronizar_partidos($pdo);
 
 // Pagos de cuotas de socio (external_reference empieza con "cuota-")
 $pdo->exec("CREATE TABLE IF NOT EXISTS pagos_cuotas (
