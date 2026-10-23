@@ -1,5 +1,4 @@
 <?php
-header('Location: /src/views/index.php'); exit;
 require_once __DIR__ . '/src/config/bootstrap.php';
 require_once __DIR__ . '/src/config/mercadopago.php';
 require_once __DIR__ . '/src/config/noticias.php';
