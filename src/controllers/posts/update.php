@@ -1,20 +1,23 @@
 <?php
+// Guarda los cambios de una noticia (solo admin)
 require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../config/admin.php';
+require_once __DIR__ . '/../../config/noticias.php';
+requerir_admin($pdo);
 
-try {
-    if (!isset($_POST['title'], $_POST['content'])) {
-        throw new Exception('Faltan datos del formulario');
-    }
+$id       = $_POST['id'] ?? '';
+$title    = trim($_POST['title'] ?? '');
+$content  = trim($_POST['content'] ?? '');
+$category = isset(CATEGORIAS_NOTICIAS[$_POST['category'] ?? '']) ? $_POST['category'] : 'futbol';
+$image    = trim($_POST['image_url'] ?? '') ?: null;
 
-    $stmt = $pdo->prepare('UPDATE posts SET title = :title, content = :content WHERE id = :id');
-    $stmt->execute([
-        'id' => $_POST['id'],
-        'title' => $_POST['title'],
-        'content' => $_POST['content'],
-    ]);
-
-    header('Location: /src/controllers/posts/index.php');
+if ($title === '' || $content === '') {
+    header('Location: /src/controllers/posts/form.php?id=' . urlencode($id) . '&error=1');
     exit;
-} catch (PDOException $e) {
-    exit('Error al actualizar el post');
 }
+
+$pdo->prepare('UPDATE posts SET title = ?, content = ?, category = ?, image_url = ? WHERE id = ?')
+    ->execute([$title, $content, $category, $image, $id]);
+
+header('Location: /src/controllers/posts/index.php?ok=editada');
+exit;

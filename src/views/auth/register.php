@@ -18,7 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare('INSERT INTO users (name, email, password, dni) VALUES (?, ?, ?, ?)');
             $stmt->execute([$name, $email, password_hash($password, PASSWORD_DEFAULT), $dni]);
-            header('Location: login.php?registrado=1');
+            
+            // Iniciamos la sesión enseguida (igual que en login.php) y lo mandamos a su portal
+            $st = $pdo->prepare('SELECT id, name, email, role, categoria FROM users WHERE email = ?');
+            $st->execute([$email]);
+            $user = $st->fetch();
+            session_regenerate_id(true);
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['role']      = $user['role'];
+            $_SESSION['user']      = $user;
+            header('Location: /src/views/index.php');
             exit;
         } catch (PDOException $e) {
             // 23000 = violación de UNIQUE (email o DNI repetido)

@@ -1,14 +1,12 @@
 <?php
+// Borra una noticia (solo admin, y solo por POST para que no se borre con un link)
 require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../config/admin.php';
+requerir_admin($pdo);
 
-try {
-    $stmt = $pdo->prepare('DELETE FROM posts WHERE id = :id');
-    $stmt->execute([
-        'id' => $_GET['id'],
-    ]);
-
-    header('Location: /src/controllers/posts/index.php');
-    exit;
-} catch (PDOException $e) {
-    exit('Error al eliminar el post');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $pdo->prepare('DELETE FROM posts WHERE id = ?')->execute([$_POST['id'] ?? '']);
 }
+
+header('Location: /src/controllers/posts/index.php?ok=borrada');
+exit;

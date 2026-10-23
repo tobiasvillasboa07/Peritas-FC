@@ -8,7 +8,8 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 $error = '';
-$aviso = isset($_GET['registrado']) ? '¡Cuenta creada! Ya podés iniciar sesión.' : '';
+$aviso = isset($_GET['registrado']) ? '¡Cuenta creada! Ya podés iniciar sesión.'
+       : (isset($_GET['restablecida']) ? 'Listo, cambiaste tu contraseña. Ya podés iniciar sesión.' : '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = strtolower(trim($_POST['email'] ?? ''));
@@ -68,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña</label>
                 <input type="password" name="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+                <a href="olvide.php" class="inline-block mt-2 text-xs text-[#D4AF37] hover:underline">¿Olvidaste tu contraseña?</a>
             </div>
 
             <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-[#0B132B] font-black tracking-wide rounded-xl shadow-lg hover:scale-[1.01] transition">

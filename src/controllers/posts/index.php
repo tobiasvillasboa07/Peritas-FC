@@ -1,25 +1,11 @@
 <?php
+// Admin de noticias: listado con editar y borrar
 require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../config/admin.php';
+require_once __DIR__ . '/../../config/noticias.php';
+requerir_admin($pdo);
+sembrar_noticias($pdo);
 
-try {
-    $query = '
-        SELECT 
-            p.*,
-            u.id AS user_id,
-            u.name AS user_name
-        FROM posts p
-        JOIN users u ON p.user_id = u.id
-        ORDER BY created_at DESC
-    ';
+$posts = $pdo->query('SELECT p.*, u.name AS user_name FROM posts p LEFT JOIN users u ON u.id = p.user_id ORDER BY p.created_at DESC')->fetchAll();
 
-    $stmt = $pdo->prepare($query);
-    $stmt->execute();
-
-    // Obtenemos todos los registros como un array asociativo
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Cargamos la vista correspondiente pasando los datos
-    require_once __DIR__ . '/../../views/posts/index.php';
-} catch (PDOException $e) {
-    exit('Error al consultar los posts');
-}
+require_once __DIR__ . '/../../views/posts/index.php';

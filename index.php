@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/src/config/bootstrap.php';
 require_once __DIR__ . '/src/config/mercadopago.php';
+require_once __DIR__ . '/src/config/noticias.php';
 
 $u = null;
 if (!empty($_SESSION['user_id'])) {
@@ -33,7 +34,12 @@ foreach ($q->fetchAll() as $m) {
     ];
 }
 
+// Noticias cargadas por el admin (la primera vez se copian de noticias.json)
+sembrar_noticias($pdo);
+$noticias = noticias_para_pagina($pdo);
+
 $html = file_get_contents(__DIR__ . '/inicio.html');
 $inject = '<script>window.PFC_USER = ' . json_encode($u, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';'
-        . 'window.PFC_MATCHES = ' . json_encode($partidos, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';</script>';
+        . 'window.PFC_MATCHES = ' . json_encode($partidos, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';'
+        . 'window.PFC_NEWS = ' . json_encode($noticias, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';</script>';
 echo str_replace('</head>', $inject . '</head>', $html);

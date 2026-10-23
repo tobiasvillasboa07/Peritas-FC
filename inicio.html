@@ -515,7 +515,7 @@
                         <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-club-blue/50 px-4 py-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-club-gold transition text-sm">
                     </div>
                     <div class="text-right">
-                        <a href="#" class="text-xs text-club-gold hover:underline">¿Olvidaste tu contraseña?</a>
+                        <a href="/src/views/auth/olvide.php" class="text-xs text-club-gold hover:underline">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <button type="submit" class="w-full py-3 bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black tracking-wide rounded-xl shadow-lg shadow-yellow-600/10 hover:scale-[1.01] transition">
@@ -524,7 +524,7 @@
                 </form>
 
                 <div class="text-center border-t border-club-blue/30 pt-4">
-                    <p class="text-xs text-slate-400">¿Todavía no sos socio? <a href="#" onclick="navigate('register')" class="text-club-gold hover:underline font-bold">Asociate acá</a></p>
+                    <p class="text-xs text-slate-400">¿Todavía no sos socio? <a href="/src/views/auth/register.php" class="text-club-gold hover:underline font-bold">Asociate acá</a></p>
                 </div>
             </div>
         </section>
@@ -573,7 +573,7 @@
                 </form>
 
                 <div class="text-center border-t border-club-blue/30 pt-4">
-                    <p class="text-xs text-slate-400">¿Ya sos socio registrado? <a href="#" onclick="navigate('login')" class="text-club-gold hover:underline font-bold">Iniciá sesión</a></p>
+                    <p class="text-xs text-slate-400">¿Ya sos socio registrado? <a href="/src/views/auth/login.php" class="text-club-gold hover:underline font-bold">Iniciá sesión</a></p>
                 </div>
             </div>
         </section>
@@ -679,10 +679,10 @@
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <p>© 2026 Peritas FC. El club de la tecnología. Todos los derechos reservados.</p>
             <div class="flex gap-4 text-base">
-                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-x-twitter"></i></a>
-                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-facebook"></i></a>
-                <a href="#" class="hover:text-club-gold"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram" class="hover:text-club-gold"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://x.com/" target="_blank" rel="noopener" aria-label="X" class="hover:text-club-gold"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook" class="hover:text-club-gold"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube" class="hover:text-club-gold"><i class="fa-brands fa-youtube"></i></a>
             </div>
         </div>
     </footer>
@@ -988,7 +988,7 @@
             messagesBox.scrollTop = messagesBox.scrollHeight;
 
             // 2. Enviar datos al backend PHP (chatbot.php) vía fetch AJAX
-            fetch('chatbot.php', {
+            fetch('/chatbot.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `mensaje=${encodeURIComponent(text)}&nombre=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}`
@@ -1406,6 +1406,12 @@
         };
                 // CARGAR NOTICIAS DESDE JSON
         async function cargarNoticias() {
+                        // Si la página viene de index.php, usamos las noticias de la base (las carga el admin)
+            if (window.PFC_NEWS) {
+                MOCK_DB.news = window.PFC_NEWS;
+                renderNews();
+                return;
+            }
             try {
                 const respuesta = await fetch('assets/data/noticias.json');
                 if (!respuesta.ok) throw new Error('No se pudo leer el JSON');

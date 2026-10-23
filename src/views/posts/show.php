@@ -13,7 +13,7 @@
         <h1 class="text-3xl font-black text-white"><?= htmlspecialchars($post['title']) ?></h1>
         
         <div class="flex items-center gap-4 text-xs text-slate-400 border-b border-slate-800 pb-4">
-            <span><strong>Autor:</strong> <?= htmlspecialchars($post['user_name']) ?></span>
+            <span><strong>Autor:</strong> <?= htmlspecialchars($post['user_name'] ?? 'Peritas FC') ?></span>
             <span><strong>Creado:</strong> <?= htmlspecialchars($post['created_at']) ?></span>
             <?php if (!empty($post['updated_at'])): ?>
                 <span><strong>Actualizado:</strong> <?= htmlspecialchars($post['updated_at']) ?></span>

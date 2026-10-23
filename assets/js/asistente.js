@@ -105,6 +105,14 @@ document.body.insertAdjacentHTML('beforeend', html);
             </div>`);
         input.value = '';
         box.scrollTop = box.scrollHeight;
-        setTimeout(() => appendBot(botReply(text)), 400);
+                // Respuesta del servidor (chatbot.php); si falla, contesta el navegador
+        fetch('/chatbot.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'mensaje=' + encodeURIComponent(text)
+        })
+            .then(res => res.json())
+            .then(data => appendBot(data.respuesta))
+            .catch(() => appendBot(botReply(text)));
     };
 })();
