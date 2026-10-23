@@ -146,24 +146,24 @@
                     </span>
                     <h1 class="font-black text-white leading-[0.95] tracking-tight text-5xl sm:text-7xl">PERITAS FC
                         <span class="flex items-center gap-4 my-3 text-club-gold text-xl sm:text-2xl font-bold tracking-widest"><span class="h-px w-12 bg-club-gold/60"></span>VS<span class="h-px w-12 bg-club-gold/60"></span></span>
-                        <span class="text-slate-200">ALIANZA DEPORTIVA</span></h1>
+                        <span id="hero-rival" class="text-slate-200">&nbsp;</span></h1>
                     <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-                        Este domingo volvemos a casa. Vení a alentar al gigante de la tecnología en el Estadio "Estrella Azul". Asegurá tu lugar antes de que se agoten las entradas.
+                         <span id="hero-texto">&nbsp;</span>
                     </p>
                     
                     <!-- Countdown & CTAs -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 pt-4">
                         <div class="flex gap-3">
                             <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
-                                <span id="days" class="block text-2xl font-bold text-white">03</span>
+                                <span id="days" class="block text-2xl font-bold text-white">--</span>
                                 <span class="text-[10px] text-slate-400 uppercase tracking-wider">Días</span>
                             </div>
                             <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
-                                <span id="hours" class="block text-2xl font-bold text-white">14</span>
+                                <span id="hours" class="block text-2xl font-bold text-white">--</span>
                                 <span class="text-[10px] text-slate-400 uppercase tracking-wider">Horas</span>
                             </div>
                             <div class="text-center bg-slate-900/80 backdrop-blur-sm border border-club-blue/50 p-3 rounded-xl min-w-[70px]">
-                                <span id="mins" class="block text-2xl font-bold text-white">25</span>
+                                <span id="mins" class="block text-2xl font-bold text-white">--</span>
                                 <span class="text-[10px] text-slate-400 uppercase tracking-wider">Mins</span>
                             </div>
                         </div>
@@ -759,13 +759,14 @@
             document.getElementById('view-' + vistaInicial).classList.remove('hidden');
         }
 
+        // Banner con el próximo partido real (se arma enseguida, sin esperar las imágenes)
+        startCountdown();
 
         // INIT EXECUTION
         window.onload = function() {
             renderNews();
             renderMatches();
             updateAuthHeader();
-            startCountdown();
             // Ir a la sección del # de la URL (por ej. /#news) o al inicio
             navigate(['news', 'tickets'].includes(vistaInicial) ? vistaInicial : 'home');
 
@@ -1365,9 +1366,23 @@
 
         // MATCH COUNTDOWN TIMER
         function startCountdown() {
-            let targetDate = new Date();
-            targetDate.setDate(targetDate.getDate() + 3); // 3 days in the future
-            targetDate.setHours(17, 0, 0, 0);
+            // Próximo partido real (viene de index.php)
+            const proximo = (window.PFC_MATCHES || [])[0];
+            if (proximo) {
+                const fecha = new Date(proximo.fecha_iso);
+                const dia = fecha.toLocaleDateString('es-AR', { weekday: 'long' }) + ' ' + fecha.getDate() + ' de ' + fecha.toLocaleDateString('es-AR', { month: 'long' });
+                const hora = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                document.getElementById('hero-rival').innerText = proximo.opponent;
+                document.getElementById('hero-texto').innerText =
+                    `El ${dia} a las ${hora} hs jugamos en el ${proximo.stadium}. Vení a alentar al gigante de la tecnología y asegurá tu lugar antes de que se agoten las entradas.`;
+            } else if (window.PFC_MATCHES) {
+                document.getElementById('hero-rival').innerText = 'PRÓXIMAMENTE';
+                document.getElementById('hero-texto').innerText = 'Todavía no hay partidos cargados. ¡Atento a las novedades!';
+                ['days', 'hours', 'mins'].forEach(id => document.getElementById(id).innerText = '00');
+                return;
+            }
+
+            let targetDate = proximo ? new Date(proximo.fecha_iso) : new Date(Date.now() + 3 * 864e5);
 
             function updateTimer() {
                 const now = new Date();

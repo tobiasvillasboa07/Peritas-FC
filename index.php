@@ -30,6 +30,7 @@ foreach ($q->fetchAll() as $m) {
         'tournament' => $m['tournament'],
         'stadium'    => $m['stadium'],
         'date'       => date('d/m/Y H:i', strtotime($m['match_date'])) . ' hs',
+        'fecha_iso'  => str_replace(' ', 'T', $m['match_date']),
         'sectores'   => $sectores,
     ];
 }
