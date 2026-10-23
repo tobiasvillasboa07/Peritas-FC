@@ -76,7 +76,7 @@
     <header class="sticky top-0 z-50 bg-club-navy/95 backdrop-blur-md border-b border-club-blue/30 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <!-- Brand Logo -->
-            <a href="#" onclick="navigate('home')" class="flex items-center gap-3 group">
+            <a href="/" onclick="navigate('home'); return false;" class="flex items-center gap-3 group">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-club-gold via-yellow-500 to-club-navy p-0.5 shadow-md flex items-center justify-center">
                     <div class="w-full h-full bg-club-navy rounded-full flex items-center justify-center font-extrabold text-club-gold text-lg tracking-wider">
                         PFC
@@ -90,10 +90,10 @@
 
             <!-- Desktop Nav Links -->
             <nav class="hidden md:flex items-center gap-8 font-semibold text-sm tracking-wide text-slate-300">
-                <a href="#" onclick="navigate('home')" id="nav-home" class="hover:text-club-gold transition py-2 border-b-2 border-transparent active-tab">INICIO</a>
-                <a href="#" onclick="navigate('news')" id="nav-news" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">NOTICIAS</a>
-                <a href="#" onclick="navigate('tickets')" id="nav-tickets" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">ENTRADAS</a>
-                <a href="#" onclick="navigate('member')" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
+                <a href="/" onclick="navigate('home'); return false;" id="nav-home" class="hover:text-club-gold transition py-2 border-b-2 border-transparent active-tab">INICIO</a>
+                <a href="/#news" onclick="navigate('news'); return false;" id="nav-news" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">NOTICIAS</a>
+                <a href="/#tickets" onclick="navigate('tickets'); return false;" id="nav-tickets" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">ENTRADAS</a>
+                <a href="/src/views/index.php" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
                 <button onclick="openChatbotModal()" class="px-3.5 py-1.5 bg-club-gold/15 border border-club-gold/50 text-club-gold rounded-full hover:bg-club-gold hover:text-club-dark transition flex items-center gap-2 text-xs font-black shadow-sm">
                     <i class="fa-solid fa-robot text-sm animate-pulse"></i> ASISTENTE
                 </button>
