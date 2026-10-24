@@ -21,12 +21,12 @@ if (!isset($_SESSION['user'])) {
                 extend: {
                     colors: {
                         club: {
-                            dark: '#0B132B',      // Azul marino ultra oscuro
-                            navy: '#1C2541',      // Azul marino principal
-                            blue: '#3A506B',      // Azul intermedio
-                            gold: '#D4AF37',      // Dorado oficial
-                            goldDark: '#AA800E',  // Dorado oscuro para contrastes
-                            accent: '#00F2FE',    // Cyan dinámico
+                            dark: '#000000',      // Azul marino ultra oscuro
+                            navy: '#0a0a0a',      // Azul marino principal
+                            blue: '#2a2a2a',      // Azul intermedio
+                            gold: '#ffb829',      // Dorado oficial
+                            goldDark: '#cc8f14',  // Dorado oscuro para contrastes
+                            accent: '#8052ff',    // Cyan dinámico
                         }
                     },
                     fontFamily: {
@@ -44,10 +44,12 @@ if (!isset($_SESSION['user'])) {
     <style>
         html { scroll-behavior: smooth; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0B132B; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
-        .active-tab { color: #D4AF37 !important; border-bottom: 2px solid #D4AF37; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #000000; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ffb829; border-radius: 3px; }
+        .active-tab { color: #ffb829 !important; border-bottom: 2px solid #ffb829; }
     </style>
+    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
 <body class="flex flex-col min-h-screen bg-club-dark text-slate-100 custom-scrollbar font-sans pb-16 md:pb-0">
 

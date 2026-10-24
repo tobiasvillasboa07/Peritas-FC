@@ -14,6 +14,8 @@ if (isset($_SESSION['user'])) {
   <link rel="stylesheet" href=<?= '/assets/css/bootstrap.min.css' ?> >
   <script src=<?= '/assets/js/bootstrap.min.js' ?>></script>
   <title>Autenticate - PDI</title>
+    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
 <body class="bg-body-secondary">
  

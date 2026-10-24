@@ -1,0 +1,91 @@
+/* ============================================================
+   Tema visual de Peritas FC (colores del escudo)
+   Fondo negro, violeta para las acciones, ámbar para los detalles
+   y títulos finos y grandes.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap');
+
+:root {
+    /* Colores */
+    --color-void: #000000;
+    --color-bone-white: #ffffff;
+    --color-ash-gray: #9a9a9a;
+    --color-silver-mist: #bdbdbd;
+    --color-electric-iris: #8052ff;
+    --color-saffron-spark: #ffb829;
+    --color-deep-verdant: #15846e;
+
+    /* Tipografía */
+    --font-principal: 'PPNeueMontreal', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --tracking-display: -0.04em;
+
+    /* Bordes */
+    --radius-cards: 24px;
+    --radius-full: 9999px;
+}
+
+/* ---------- Fondo negro ---------- */
+html, body { background: var(--color-void) !important; }
+body {
+    color: var(--color-bone-white);
+    font-family: var(--font-principal) !important;
+    font-weight: 300;
+    font-feature-settings: "ss01" on;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Títulos: grandes, finos y apretados ---------- */
+h1, h2, h3, h4, h1[class], h2[class], h3[class], h4[class] { font-weight: 400 !important; }
+h1 { letter-spacing: var(--tracking-display) !important; line-height: 1.05 !important; }
+h2 { letter-spacing: -0.03em !important; }
+h3, h4 { letter-spacing: -0.01em !important; }
+.font-black, .font-extrabold { font-weight: 600 !important; }
+
+/* Texto de lectura liviano */
+p.text-base, p.text-lg, p.sm\:text-base { font-weight: 200; }
+p { font-weight: 300; }
+
+/* ---------- Botón principal: pastilla violeta ---------- */
+[class*="from-[#ffb829]"],
+[class*="from-club-gold"] {
+    background: var(--color-electric-iris) !important;
+    color: var(--color-bone-white) !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+button[class*="from-[#ffb829]"], a[class*="from-[#ffb829]"],
+button[class*="from-club-gold"], a[class*="from-club-gold"] {
+    border-radius: var(--radius-full) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    font-weight: 600 !important;
+}
+button[class*="from-"]:hover, a[class*="from-"]:hover { filter: brightness(1.12); }
+/* Botones que se pintaban de dorado al pasar el mouse: ahora violeta */
+[class~="hover:bg-club-gold"]:hover, [class~="hover:bg-[#ffb829]"]:hover { background-color: var(--color-electric-iris) !important; color: var(--color-bone-white) !important; }
+
+/* ---------- Navegación: gris apagado, activo en blanco ---------- */
+header { background: rgba(0, 0, 0, 0.9) !important; border-color: #161616 !important; }
+header nav a { color: var(--color-ash-gray); letter-spacing: 0.025em; }
+header nav a:hover { color: var(--color-bone-white) !important; }
+.active-tab { color: var(--color-bone-white) !important; border-bottom-color: var(--color-electric-iris) !important; }
+
+/* ---------- Banner del partido: cancha en negro con brillo violeta ---------- */
+.pitch-bg {
+    background:
+        linear-gradient(to right, rgba(0, 0, 0, .96) 35%, rgba(0, 0, 0, .55) 100%),
+        radial-gradient(circle at 85% 15%, rgba(128, 82, 255, .35), transparent 45%),
+        repeating-linear-gradient(90deg, #0a0a0a 0 70px, #111111 70px 140px) !important;
+}
+
+/* ---------- Recuadros: casi negros, sin tinte azul ---------- */
+[class*="bg-slate-900"]:not(html), [class*="bg-slate-950"]:not(html) { background-color: #0a0a0a !important; }
+
+/* ---------- Formularios ---------- */
+input, select, textarea { background-color: #0a0a0a !important; border-color: #262626 !important; }
+input:focus, select:focus, textarea:focus { border-color: var(--color-electric-iris) !important; }
+:focus-visible { outline: 2px solid var(--color-electric-iris) !important; outline-offset: 3px; }
+
+/* ---------- Scroll ---------- */
+.custom-scrollbar::-webkit-scrollbar-track { background: var(--color-void) !important; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-electric-iris) !important; }

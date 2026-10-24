@@ -63,35 +63,35 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
     <style>
         .pitch-bg { background: linear-gradient(to right, rgba(11,19,43,.96) 35%, rgba(11,19,43,.55) 100%),
             radial-gradient(circle at 85% 15%, rgba(212,175,55,.35), transparent 45%),
-            repeating-linear-gradient(90deg, #1C2541 0 70px, #17203b 70px 140px); }
-        :focus-visible { outline: 2px solid #D4AF37; outline-offset: 3px; }
+            repeating-linear-gradient(90deg, #0a0a0a 0 70px, #17203b 70px 140px); }
+        :focus-visible { outline: 2px solid #ffb829; outline-offset: 3px; }
     </style>
+    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
-<body class="bg-[#0B132B] text-slate-100 font-['Poppins'] min-h-screen">
+<body class="bg-[#000000] text-slate-100 font-['Poppins'] min-h-screen">
 
- <header class="bg-[#1C2541]/95 backdrop-blur-md border-b border-[#3A506B]/30 sticky top-0 z-50">
+ <header class="bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#2a2a2a]/30 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         <a href="/" class="flex items-center gap-3 group">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#D4AF37] via-yellow-500 to-[#1C2541] p-0.5 shadow-md">
-                <div class="w-full h-full bg-[#1C2541] rounded-full flex items-center justify-center font-extrabold text-[#D4AF37] text-lg">PFC</div>
-            </div>
+            <img src="/assets/img/escudo-chico.png" alt="Escudo de Peritas FC" class="h-14 w-auto">
             <div>
-                <span class="text-xl font-black tracking-tight text-white">PERITAS <span class="text-[#D4AF37]">FC</span></span>
+                <span class="text-xl font-black tracking-tight text-white">PERITAS <span class="text-[#ffb829]">FC</span></span>
                 <p class="text-[10px] text-slate-400 tracking-widest uppercase">El club de la tecnología</p>
             </div>
         </a>
 
         <nav class="hidden md:flex items-center gap-8 font-semibold text-sm tracking-wide text-slate-300">
-            <a href="/" class="hover:text-[#D4AF37] transition py-2">INICIO</a>
-            <a href="/#news" class="hover:text-[#D4AF37] transition py-2">NOTICIAS</a>
-            <a href="/src/views/entradas.php" class="hover:text-[#D4AF37] transition py-2">ENTRADAS</a>
-            <a href="/src/views/index.php" class="text-[#D4AF37] py-2 border-b-2 border-[#D4AF37]">PORTAL SOCIO</a>
+            <a href="/" class="hover:text-[#ffb829] transition py-2">INICIO</a>
+            <a href="/#news" class="hover:text-[#ffb829] transition py-2">NOTICIAS</a>
+            <a href="/src/views/entradas.php" class="hover:text-[#ffb829] transition py-2">ENTRADAS</a>
+            <a href="/src/views/index.php" class="text-[#ffb829] py-2 border-b-2 border-[#ffb829]">PORTAL SOCIO</a>
             <?php if ($user['role'] === 'admin'): ?>
-                <a href="/src/views/admin/partidos.php" class="text-[#D4AF37] hover:text-yellow-300 transition py-2">PARTIDOS</a>
-                <a href="/src/controllers/posts/index.php" class="text-[#D4AF37] hover:text-yellow-300 transition py-2">ADMIN NOTICIAS</a>
+                <a href="/src/views/admin/partidos.php" class="text-[#ffb829] hover:text-yellow-300 transition py-2">PARTIDOS</a>
+                <a href="/src/controllers/posts/index.php" class="text-[#ffb829] hover:text-yellow-300 transition py-2">ADMIN NOTICIAS</a>
             <?php endif; ?>
             <button type="button" onclick="window.openChatbotModal && openChatbotModal()"
-                class="px-3.5 py-1.5 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#D4AF37] rounded-full hover:bg-[#D4AF37] hover:text-[#0B132B] transition text-xs font-black">
+                class="px-3.5 py-1.5 bg-[#ffb829]/15 border border-[#ffb829]/50 text-[#ffb829] rounded-full hover:bg-[#ffb829] hover:text-[#000000] transition text-xs font-black">
                                 <i class="fa-solid fa-robot text-sm animate-pulse"></i> ASISTENTE
             </button>
         </nav>
@@ -99,9 +99,9 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         <div class="flex items-center gap-4 text-sm">
             <span class="text-right leading-tight">
                 <span class="block font-semibold"><?= e($user['name']) ?></span>
-                <span class="block text-xs text-[#D4AF37]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span>
+                <span class="block text-xs text-[#ffb829]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span>
             </span>
-            <a href="/src/views/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#3A506B] hover:border-[#D4AF37] text-xs font-semibold">Salir</a>
+            <a href="/src/views/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#2a2a2a] hover:border-[#ffb829] text-xs font-semibold">Salir</a>
         </div>
     </div>
 </header>
@@ -109,14 +109,14 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 <main class="max-w-6xl mx-auto px-4 py-8 space-y-10">
 
     <!-- Próximo partido -->
-    <section class="pitch-bg rounded-3xl border border-[#3A506B]/50 px-6 sm:px-12 py-12">
+    <section class="pitch-bg rounded-3xl border border-[#2a2a2a]/50 px-6 sm:px-12 py-12">
         <?php if ($partido): ?>
-            <p class="text-sm text-[#D4AF37] font-semibold mb-3"><?= e($partido['tournament']) ?> · <?= date('d/m/Y H:i', strtotime($partido['match_date'])) ?> hs</p>
-            <h1 class="font-black text-4xl sm:text-6xl leading-none"><?= e($partido['home_team']) ?><span class="block text-[#D4AF37] text-xl my-2">vs</span><span class="text-slate-200"><?= e($partido['away_team']) ?></span></h1>
+            <p class="text-sm text-[#ffb829] font-semibold mb-3"><?= e($partido['tournament']) ?> · <?= date('d/m/Y H:i', strtotime($partido['match_date'])) ?> hs</p>
+            <h1 class="font-black text-4xl sm:text-6xl leading-none"><?= e($partido['home_team']) ?><span class="block text-[#ffb829] text-xl my-2">vs</span><span class="text-slate-200"><?= e($partido['away_team']) ?></span></h1>
             <p class="text-slate-400 text-sm mt-4"><?= e($partido['stadium']) ?></p>
             <div id="cuenta" data-fecha="<?= e(str_replace(' ', 'T', $partido['match_date'])) ?>" class="flex gap-3 mt-6">
                 <?php foreach (['d' => 'Días', 'h' => 'Horas', 'm' => 'Min'] as $k => $l): ?>
-                    <div class="bg-slate-900/80 border border-[#3A506B]/50 rounded-xl px-4 py-3 text-center min-w-[72px]"><span id="c-<?= $k ?>" class="block text-2xl font-bold">--</span><span class="text-xs text-slate-400"><?= $l ?></span></div>
+                    <div class="bg-slate-900/80 border border-[#2a2a2a]/50 rounded-xl px-4 py-3 text-center min-w-[72px]"><span id="c-<?= $k ?>" class="block text-2xl font-bold">--</span><span class="text-xs text-slate-400"><?= $l ?></span></div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
@@ -129,8 +129,8 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         <!-- Credencial -->
         <section class="space-y-4">
             <h2 class="text-xl font-bold">Mi credencial</h2>
-            <div class="rounded-2xl p-6 bg-gradient-to-br from-[#1C2541] to-[#0B132B] border border-[#D4AF37]/40 space-y-4">
-                <p class="text-xs text-[#D4AF37] font-bold">PERITAS FC · CLUB DE SOCIOS</p>
+            <div class="rounded-2xl p-6 bg-gradient-to-br from-[#0a0a0a] to-[#000000] border border-[#ffb829]/40 space-y-4">
+                <p class="text-xs text-[#ffb829] font-bold">PERITAS FC · CLUB DE SOCIOS</p>
                 <p class="text-2xl font-extrabold"><?= e($user['name']) ?></p>
                 <dl class="text-sm space-y-1 text-slate-300">
                     <div class="flex justify-between"><dt class="text-slate-400">Categoría</dt><dd><?= e($user['categoria']) ?></dd></div>
@@ -150,7 +150,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             <?php if ($pendientes): ?>
                 <p class="text-sm text-yellow-300">Tenés <?= $pendientes ?> cuota<?= $pendientes > 1 ? 's' : '' ?> sin pagar. Hasta que estés al día no tenés los beneficios de socio (Tribuna Popular gratis).</p>
             <?php endif; ?>
-            <div class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 divide-y divide-[#3A506B]/30">
+            <div class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 divide-y divide-[#2a2a2a]/30">
                 <?php foreach ($cuotas as $c): ?>
                     <div class="flex items-center justify-between px-5 py-3 text-sm">
                         <span>Cuota <?= e($c['periodo']) ?></span>
@@ -158,7 +158,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
                                                 <span class="px-2 py-0.5 rounded-full text-xs font-bold <?= $c['estado'] === 'pagada' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300' ?>"><?= e($c['estado']) ?></span>
                         <?php if ($c['estado'] === 'pendiente'): ?>
                             <form method="POST"><input type="hidden" name="cuota_id" value="<?= e($c['id']) ?>">
-                                <button class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-[#0B132B] font-bold text-xs hover:scale-105 transition">Pagar</button></form>
+                                <button class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-bold text-xs hover:scale-105 transition">Pagar</button></form>
                         <?php else: ?>
                             <span class="w-[68px]"></span>
                         <?php endif; ?>
@@ -175,11 +175,11 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         <?php if ($entradas): ?>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <?php foreach ($entradas as $t): ?>
-                    <div class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 p-4 text-sm"><p class="font-bold">vs <?= e($t['away_team']) ?></p><p class="text-slate-400"><?= date('d/m/Y H:i', strtotime($t['match_date'])) ?> · <?= e($t['sector']) ?></p><p class="text-[#D4AF37] font-semibold mt-1"><?= plata($t['price']) ?></p></div>
+                    <div class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 p-4 text-sm"><p class="font-bold">vs <?= e($t['away_team']) ?></p><p class="text-slate-400"><?= date('d/m/Y H:i', strtotime($t['match_date'])) ?> · <?= e($t['sector']) ?></p><p class="text-[#ffb829] font-semibold mt-1"><?= plata($t['price']) ?></p></div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-sm text-slate-400">Todavía no sacaste entradas. <a href="/src/views/entradas.php" class="text-[#D4AF37] font-semibold hover:underline">Sacá la primera</a>.</p>
+            <p class="text-sm text-slate-400">Todavía no sacaste entradas. <a href="/src/views/entradas.php" class="text-[#ffb829] font-semibold hover:underline">Sacá la primera</a>.</p>
         <?php endif; ?>
     </section>
 
@@ -189,7 +189,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         <?php if ($noticias): ?>
             <div class="grid md:grid-cols-3 gap-4">
                 <?php foreach ($noticias as $n): ?>
-                    <article class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 p-5"><p class="text-xs text-[#D4AF37] font-semibold"><?= e($n['category']) ?> · <?= date('d/m/Y', strtotime($n['created_at'])) ?></p><h3 class="font-bold mt-1"><?= e($n['title']) ?></h3><p class="text-sm text-slate-400 mt-2"><?= e(mb_strimwidth($n['content'], 0, 140, '…')) ?></p></article>
+                    <article class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 p-5"><p class="text-xs text-[#ffb829] font-semibold"><?= e($n['category']) ?> · <?= date('d/m/Y', strtotime($n['created_at'])) ?></p><h3 class="font-bold mt-1"><?= e($n['title']) ?></h3><p class="text-sm text-slate-400 mt-2"><?= e(mb_strimwidth($n['content'], 0, 140, '…')) ?></p></article>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>

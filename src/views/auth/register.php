@@ -50,11 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
-<body class="flex flex-col min-h-screen bg-[#0B132B] text-slate-100 font-['Poppins'] justify-center items-center p-4">
+<body class="flex flex-col min-h-screen bg-[#000000] text-slate-100 font-['Poppins'] justify-center items-center p-4">
 
-    <div class="max-w-md w-full bg-[#1C2541] border border-[#3A506B]/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#D4AF37] to-yellow-500"></div>
+    <div class="max-w-md w-full bg-[#0a0a0a] border border-[#2a2a2a]/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#ffb829] to-yellow-500"></div>
 
         <div class="text-center space-y-2">
             <h1 class="text-2xl font-extrabold text-white">Asociate a Peritas FC</h1>
@@ -70,28 +72,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="register.php" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Nombre Completo</label>
-                <input type="text" name="name" required placeholder="Ej: Juan Pérez" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+                <input type="text" name="name" required placeholder="Ej: Juan Pérez" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">DNI (Documento)</label>
-                <input type="text" name="dni" required inputmode="numeric" maxlength="8" placeholder="Ej: 45123987" value="<?= htmlspecialchars($_POST['dni'] ?? '') ?>" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+                <input type="text" name="dni" required inputmode="numeric" maxlength="8" placeholder="Ej: 45123987" value="<?= htmlspecialchars($_POST['dni'] ?? '') ?>" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico</label>
-                <input type="email" name="email" required placeholder="socio@peritas.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+                <input type="email" name="email" required placeholder="socio@peritas.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña (mínimo 8 caracteres)</label>
-                <input type="password" name="password" required minlength="8" placeholder="••••••••" class="w-full bg-slate-900 border border-[#3A506B] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#D4AF37] transition text-sm">
+                <input type="password" name="password" required minlength="8" placeholder="••••••••" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
             </div>
 
-            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-[#0B132B] font-black tracking-wide rounded-xl shadow-lg hover:scale-[1.01] transition">
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-black tracking-wide rounded-xl shadow-lg hover:scale-[1.01] transition">
                 CREAR MI CUENTA DE SOCIO
             </button>
         </form>
 
-        <div class="text-center border-t border-[#3A506B]/30 pt-4">
-            <p class="text-xs text-slate-400">¿Ya sos socio registrado? <a href="login.php" class="text-[#D4AF37] hover:underline font-bold">Iniciá sesión</a></p>
+        <div class="text-center border-t border-[#2a2a2a]/30 pt-4">
+            <p class="text-xs text-slate-400">¿Ya sos socio registrado? <a href="login.php" class="text-[#ffb829] hover:underline font-bold">Iniciá sesión</a></p>
         </div>
     </div>
 

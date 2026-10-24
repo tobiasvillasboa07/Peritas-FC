@@ -12,12 +12,12 @@
                 extend: {
                     colors: {
                         club: {
-                            dark: '#0B132B',      // Azul marino ultra oscuro
-                            navy: '#1C2541',      // Azul marino principal
-                            blue: '#3A506B',      // Azul intermedio
-                            gold: '#D4AF37',      // Dorado oficial
-                            goldDark: '#AA800E',  // Dorado oscuro para contrastes
-                            accent: '#00F2FE',    // Cyan dinámico para detalles modernos
+                            dark: '#000000',      // Azul marino ultra oscuro
+                            navy: '#0a0a0a',      // Azul marino principal
+                            blue: '#2a2a2a',      // Azul intermedio
+                            gold: '#ffb829',      // Dorado oficial
+                            goldDark: '#cc8f14',  // Dorado oscuro para contrastes
+                            accent: '#8052ff',    // Cyan dinámico para detalles modernos
                         }
                     },
                     fontFamily: {
@@ -44,31 +44,33 @@
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0B132B;
+            background: #000000;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #D4AF37;
+            background: #ffb829;
             border-radius: 3px;
         }
         .active-tab {
-            color: #D4AF37 !important;
-            border-bottom: 2px solid #D4AF37;
+            color: #ffb829 !important;
+            border-bottom: 2px solid #ffb829;
         }
         .mobile-active-tab {
-            color: #D4AF37 !important;
+            color: #ffb829 !important;
         }
 
         .pitch-bg {
             background:
                 linear-gradient(to right, rgba(11,19,43,.96) 35%, rgba(11,19,43,.55) 100%),
                 radial-gradient(circle at 85% 15%, rgba(212,175,55,.35), transparent 45%),
-                repeating-linear-gradient(90deg, #1C2541 0 70px, #17203b 70px 140px);
+                repeating-linear-gradient(90deg, #0a0a0a 0 70px, #17203b 70px 140px);
         }
-        :focus-visible { outline: 2px solid #D4AF37; outline-offset: 3px; }
+        :focus-visible { outline: 2px solid #ffb829; outline-offset: 3px; }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
         }
     </style>
+    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
 <body class="flex flex-col min-h-screen bg-club-dark text-slate-100 custom-scrollbar font-sans pb-16 md:pb-0">
 
@@ -77,11 +79,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <!-- Brand Logo -->
             <a href="/" onclick="navigate('home'); return false;" class="flex items-center gap-3 group">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-club-gold via-yellow-500 to-club-navy p-0.5 shadow-md flex items-center justify-center">
-                    <div class="w-full h-full bg-club-navy rounded-full flex items-center justify-center font-extrabold text-club-gold text-lg tracking-wider">
-                        PFC
-                    </div>
-                </div>
+                <img src="/assets/img/escudo-chico.png" alt="Escudo de Peritas FC" class="h-14 w-auto">
                 <div>
                     <span class="text-xl font-black tracking-tight text-white group-hover:text-club-gold transition">PERITAS <span class="text-club-gold">FC</span></span>
                     <p class="text-[10px] text-slate-400 tracking-widest uppercase">El club de la tecnología</p>
@@ -135,8 +133,8 @@
             <div class="relative rounded-3xl overflow-hidden bg-club-navy border border-club-blue/50 shadow-2xl">
                 <!-- Cover Image -->
                 <div class="absolute inset-0 pitch-bg"></div>
-                <svg class="absolute right-[-60px] top-1/2 -translate-y-1/2 h-[120%] w-auto opacity-25 hidden md:block" viewBox="0 0 400 400" fill="none" stroke="#D4AF37" stroke-width="3" aria-hidden="true">
-                    <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="6" fill="#D4AF37"/><line x1="200" y1="0" x2="200" y2="400"/><rect x="-20" y="110" width="110" height="180"/>
+                <svg class="absolute right-[-60px] top-1/2 -translate-y-1/2 h-[120%] w-auto opacity-25 hidden md:block" viewBox="0 0 400 400" fill="none" stroke="#ffb829" stroke-width="3" aria-hidden="true">
+                    <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="6" fill="#ffb829"/><line x1="200" y1="0" x2="200" y2="400"/><rect x="-20" y="110" width="110" height="180"/>
                 </svg>
                 
                 <!-- Content Area -->
@@ -386,7 +384,7 @@
                     </h3>
                     
                     <!-- Digital Card Outer Shell -->
-                    <div class="relative w-full max-w-[380px] h-[550px] rounded-3xl overflow-hidden bg-gradient-to-b from-[#1C2541] via-[#0B132B] to-[#12192c] border-2 border-club-gold/40 shadow-2xl p-6 flex flex-col justify-between select-none group">
+                    <div class="relative w-full max-w-[380px] h-[550px] rounded-3xl overflow-hidden bg-gradient-to-b from-[#0a0a0a] via-[#000000] to-[#12192c] border-2 border-club-gold/40 shadow-2xl p-6 flex flex-col justify-between select-none group">
                         <!-- Hologram overlay effect -->
                         <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-60"></div>
                         
@@ -412,7 +410,7 @@
                                     <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Peritas" alt="Foto Socio" class="w-full h-full bg-slate-900 object-cover" id="carnet-avatar">
                                 </div>
                                 <!-- Active Indicator Badge -->
-                                <div id="carnet-status-badge" class="absolute bottom-0 right-1 px-3 py-1 bg-emerald-500 text-club-dark font-black text-[10px] rounded-full border-2 border-[#0B132B] shadow-md uppercase tracking-wider">
+                                <div id="carnet-status-badge" class="absolute bottom-0 right-1 px-3 py-1 bg-emerald-500 text-club-dark font-black text-[10px] rounded-full border-2 border-[#000000] shadow-md uppercase tracking-wider">
                                     ACTIVO
                                 </div>
                             </div>
@@ -1261,7 +1259,7 @@
 
             if (user.duesStatus === "AL_DIA") {
                 badge.innerText = "ACTIVO";
-                badge.className = "absolute bottom-0 right-1 px-3 py-1 bg-emerald-500 text-club-dark font-black text-[10px] rounded-full border-2 border-[#0B132B] shadow-md uppercase tracking-wider";
+                badge.className = "absolute bottom-0 right-1 px-3 py-1 bg-emerald-500 text-club-dark font-black text-[10px] rounded-full border-2 border-[#000000] shadow-md uppercase tracking-wider";
                 
                 dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
                 textStatus.innerText = "Al día (Activo)";
@@ -1269,7 +1267,7 @@
                 btnPay.classList.add('hidden');
             } else {
                 badge.innerText = "DEUDA";
-                badge.className = "absolute bottom-0 right-1 px-3 py-1 bg-red-500 text-white font-black text-[10px] rounded-full border-2 border-[#0B132B] shadow-md uppercase tracking-wider";
+                badge.className = "absolute bottom-0 right-1 px-3 py-1 bg-red-500 text-white font-black text-[10px] rounded-full border-2 border-[#000000] shadow-md uppercase tracking-wider";
                 
                 dot.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse";
                 textStatus.innerText = "Cuota Impaga (Deudor)";

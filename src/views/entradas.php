@@ -42,28 +42,30 @@ $partidos = $q->fetchAll();
 <title>Entradas - Peritas FC</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-<style>:focus-visible{outline:2px solid #D4AF37;outline-offset:3px}</style></head>
-<body class="bg-[#0B132B] text-slate-100 font-['Poppins'] min-h-screen">
-<header class="bg-[#1C2541] border-b border-[#3A506B]/30"><div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-    <a href="/" class="font-extrabold text-lg">PERITAS <span class="text-[#D4AF37]">FC</span></a>
+<style>:focus-visible{outline:2px solid #ffb829;outline-offset:3px}</style>    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
+</head>
+<body class="bg-[#000000] text-slate-100 font-['Poppins'] min-h-screen">
+<header class="bg-[#0a0a0a] border-b border-[#2a2a2a]/30"><div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/" class="font-extrabold text-lg"><img src="/assets/img/escudo-chico.png" alt="" class="inline-block h-9 w-auto mr-2 align-middle">PERITAS <span class="text-[#ffb829]">FC</span></a>
     <a href="/src/views/index.php" class="text-sm text-slate-300 hover:text-white">Volver a mi portal</a></div></header>
 <main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
     <h1 class="text-3xl font-black">Sacá tu entrada</h1>
-    <?php if ($esPleno): ?><p class="text-sm text-[#D4AF37]">Como socio Pleno, la Tribuna Popular es gratis.</p><?php endif; ?>
+    <?php if ($esPleno): ?><p class="text-sm text-[#ffb829]">Como socio Pleno, la Tribuna Popular es gratis.</p><?php endif; ?>
             <?php if ($debeCuota): ?><p class="text-sm text-yellow-300">Tenés la cuota de socio sin pagar, por eso la Tribuna Popular no te sale gratis. <a href="/src/views/index.php#cuotas" class="underline font-semibold">Pagá tu cuota</a> y volvé a sacar la entrada.</p><?php endif; ?>
     <?php if ($msg): ?><div class="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm rounded-xl px-4 py-3"><?= e($msg) ?></div><?php endif; ?>
     <?php if ($err): ?><div class="bg-red-500/10 border border-red-500/40 text-red-300 text-sm rounded-xl px-4 py-3"><?= e($err) ?></div><?php endif; ?>
     <?php foreach ($partidos as $m): $quedan = $m['capacity'] - $m['vendidas']; ?>
-        <form method="POST" class="rounded-2xl border border-[#3A506B]/40 bg-[#1C2541]/60 p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+        <form method="POST" class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
             <input type="hidden" name="match_id" value="<?= e($m['id']) ?>">
             <div><p class="font-bold text-lg">PERITAS FC vs <?= e($m['away_team']) ?></p>
                 <p class="text-sm text-slate-400"><?= e($m['tournament']) ?> · <?= date('d/m/Y H:i', strtotime($m['match_date'])) ?> hs · <?= e($m['stadium']) ?></p>
                 <p class="text-xs mt-1 <?= $quedan > 0 ? 'text-slate-400' : 'text-red-400' ?>"><?= $quedan > 0 ? "Quedan $quedan entradas" : 'Agotado' ?></p></div>
             <div class="flex gap-2">
-                <select name="sector" class="bg-slate-900 border border-[#3A506B] rounded-xl px-3 py-2 text-sm">
+                <select name="sector" class="bg-slate-900 border border-[#2a2a2a] rounded-xl px-3 py-2 text-sm">
                     <?php foreach (SECTORES as $k => $s): ?><option value="<?= e($k) ?>"><?= e($s[0]) ?> - <?= plata($precio($k)) ?></option><?php endforeach; ?>
                 </select>
-                <button <?= $quedan > 0 ? '' : 'disabled' ?> class="px-5 py-2 rounded-full bg-gradient-to-r from-[#D4AF37] to-yellow-500 text-[#0B132B] font-bold text-sm disabled:opacity-40">Sacar entrada</button>
+                <button <?= $quedan > 0 ? '' : 'disabled' ?> class="px-5 py-2 rounded-full bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-bold text-sm disabled:opacity-40">Sacar entrada</button>
             </div>
         </form>
     <?php endforeach; ?>

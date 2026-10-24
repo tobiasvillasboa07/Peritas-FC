@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Publicación - Peritas FC</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/dala.css">
+    <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
 <body class="p-8 max-w-3xl mx-auto space-y-6">
     <a href="index.php" class="text-xs text-amber-400 hover:underline flex items-center gap-1">← Volver al listado</a>
