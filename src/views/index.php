@@ -49,6 +49,19 @@ $te = $pdo->prepare('SELECT t.sector, t.price, m.away_team, m.match_date FROM ti
 $te->execute([$uid]);
 $entradas = $te->fetchAll();
 
+// Historial de pagos con Mercado Pago: entradas y cuotas (aprobados y rechazados)
+$hp = $pdo->prepare("
+    SELECT p.created_at AS fecha, 'Entrada vs ' || m.away_team AS concepto, p.sector AS sector, p.monto, p.estado
+      FROM pagos p JOIN matches m ON m.id = p.match_id
+     WHERE p.user_id = ? AND p.estado <> 'pendiente'
+    UNION ALL
+    SELECT pc.created_at, 'Cuota social ' || c.periodo, '', pc.monto, pc.estado
+      FROM pagos_cuotas pc JOIN cuotas c ON c.id = pc.cuota_id
+     WHERE pc.user_id = ? AND pc.estado <> 'pendiente'
+    ORDER BY fecha DESC");
+$hp->execute([$uid, $uid]);
+$historial = $hp->fetchAll();
+
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 ?>
@@ -85,10 +98,11 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             <a href="/" class="hover:text-[#ffb829] transition py-2">INICIO</a>
             <a href="/#news" class="hover:text-[#ffb829] transition py-2">NOTICIAS</a>
             <a href="/src/views/entradas.php" class="hover:text-[#ffb829] transition py-2">ENTRADAS</a>
+            <a href="/src/views/plantel.php" class="hover:text-[#ffb829] transition py-2">PLANTEL</a>
+            <a href="/src/views/resultados.php" class="hover:text-[#ffb829] transition py-2">RESULTADOS</a>
             <a href="/src/views/index.php" class="text-[#ffb829] py-2 border-b-2 border-[#ffb829]">PORTAL SOCIO</a>
             <?php if ($user['role'] === 'admin'): ?>
-                <a href="/src/views/admin/partidos.php" class="text-[#ffb829] hover:text-yellow-300 transition py-2">PARTIDOS</a>
-                <a href="/src/controllers/posts/index.php" class="text-[#ffb829] hover:text-yellow-300 transition py-2">ADMIN NOTICIAS</a>
+                <a href="/src/views/admin/estadisticas.php" class="text-[#ffb829] hover:text-yellow-300 transition py-2">ADMIN</a>
             <?php endif; ?>
             <button type="button" onclick="window.openChatbotModal && openChatbotModal()"
                 class="px-3.5 py-1.5 bg-[#ffb829]/15 border border-[#ffb829]/50 text-[#ffb829] rounded-full hover:bg-[#ffb829] hover:text-[#000000] transition text-xs font-black">
@@ -180,6 +194,25 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             </div>
         <?php else: ?>
             <p class="text-sm text-slate-400">Todavía no sacaste entradas. <a href="/src/views/entradas.php" class="text-[#ffb829] font-semibold hover:underline">Sacá la primera</a>.</p>
+        <?php endif; ?>
+    </section>
+
+        <!-- Historial de pagos -->
+    <section id="historial" class="space-y-4">
+        <h2 class="text-xl font-bold">Historial de pagos</h2>
+        <?php if ($historial): ?>
+            <div class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 divide-y divide-[#2a2a2a]/30">
+                <?php foreach ($historial as $h): $ok = $h['estado'] === 'aprobado'; ?>
+                    <div class="grid grid-cols-[1fr_auto] sm:grid-cols-[9rem_1fr_auto_auto] items-center gap-x-4 gap-y-1 px-5 py-3 text-sm">
+                        <span class="text-slate-400 tabular-nums"><?= date('d/m/Y H:i', strtotime($h['fecha'] . ' UTC')) ?></span>
+                        <span class="order-first sm:order-none col-span-2 sm:col-span-1"><?= e($h['concepto']) ?><?php if ($h['sector'] !== ''): ?> <span class="text-slate-400">· <?= e(SECTORES[$h['sector']][0] ?? $h['sector']) ?></span><?php endif; ?></span>
+                        <span class="font-semibold tabular-nums text-right"><?= plata($h['monto']) ?></span>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold text-center <?= $ok ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300' ?>"><?= $ok ? 'Aprobado' : 'Rechazado' ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-sm text-slate-400">Todavía no hiciste pagos con Mercado Pago. Cuando pagues una entrada o una cuota, va a aparecer acá.</p>
         <?php endif; ?>
     </section>
 

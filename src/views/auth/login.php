@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#ffb829] to-yellow-500"></div>
 
         <div class="text-center space-y-2">
+            <img src="/assets/img/escudo.png" alt="Escudo de Peritas FC" class="h-24 w-auto mx-auto mb-2">
             <h1 class="text-2xl font-extrabold text-white">Ingresá a tu Cuenta</h1>
             <p class="text-xs text-slate-400">Iniciá sesión para gestionar tu carnet digital en Peritas FC</p>
         </div>

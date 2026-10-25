@@ -49,6 +49,7 @@ $campo = 'w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl tex
         <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#ffb829] to-yellow-500"></div>
 
         <div class="text-center space-y-2">
+            <img src="/assets/img/escudo.png" alt="Escudo de Peritas FC" class="h-24 w-auto mx-auto mb-2">
             <h1 class="text-2xl font-extrabold text-white">Recuperá tu contraseña</h1>
             <p class="text-xs text-slate-400">Confirmá tu correo y tu DNI y elegí una contraseña nueva</p>
         </div>

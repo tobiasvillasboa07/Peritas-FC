@@ -1,0 +1,14 @@
+[
+  { "torneo": "Liga de Primera División", "fecha": "2026-09-06", "local": "Peritas FC",        "visitante": "Deportivo Sur",     "goles_local": 2, "goles_visitante": 1 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-09-06", "local": "Alianza Deportiva", "visitante": "Berazategui",       "goles_local": 1, "goles_visitante": 1 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-09-06", "local": "Racing Digital",    "visitante": "Atlético Central",  "goles_local": 0, "goles_visitante": 2 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-09-20", "local": "Berazategui",       "visitante": "Peritas FC",        "goles_local": 0, "goles_visitante": 0 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-09-20", "local": "Deportivo Sur",     "visitante": "Racing Digital",    "goles_local": 3, "goles_visitante": 1 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-09-20", "local": "Atlético Central",  "visitante": "Alianza Deportiva", "goles_local": 1, "goles_visitante": 2 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-10-04", "local": "Peritas FC",        "visitante": "Racing Digital",    "goles_local": 3, "goles_visitante": 0 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-10-04", "local": "Alianza Deportiva", "visitante": "Deportivo Sur",     "goles_local": 2, "goles_visitante": 2 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-10-04", "local": "Atlético Central",  "visitante": "Berazategui",       "goles_local": 1, "goles_visitante": 0 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-10-18", "local": "Atlético Central",  "visitante": "Peritas FC",        "goles_local": 1, "goles_visitante": 1 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-10-18", "local": "Berazategui",       "visitante": "Deportivo Sur",     "goles_local": 2, "goles_visitante": 1 },
+  { "torneo": "Liga de Primera División", "fecha": "2026-10-18", "local": "Racing Digital",    "visitante": "Alianza Deportiva", "goles_local": 1, "goles_visitante": 3 }
+]
