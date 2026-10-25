@@ -1,15 +1,15 @@
 [
-  { "numero": 1,  "nombre": "Martín Ledesma",   "posicion": "Arquero",       "foto": "" },
-  { "numero": 12, "nombre": "Bruno Acosta",     "posicion": "Arquero",       "foto": "" },
+  { "numero": 1,  "nombre": "Santiago Cotone",   "posicion": "Arquero",       "foto": "/assets/img/jugador-1.jpg" },
+  { "numero": 12, "nombre": "Mijail Mamani",     "posicion": "Arquero",       "foto": "/assets/img/jugador-12.jpg" },
   { "numero": 2,  "nombre": "Santiago Mac Cartney",   "posicion": "Defensor",      "foto": "/assets/img/jugador-2.jpg" },
-  { "numero": 4,  "nombre": "Nicolás Paredes",  "posicion": "Defensor",      "foto": "" },
+  { "numero": 4,  "nombre": "Gonzalo Mauritana",  "posicion": "Defensor",      "foto": "/assets/img/jugador-4.jpg" },
   { "numero": 6,  "nombre": "Tobias Villasboa",     "posicion": "Defensor",      "foto": "/assets/img/jugador-6.jpg" },
   { "numero": 3,  "nombre": "Benja Vera",   "posicion": "Defensor",      "foto": "/assets/img/jugador-3.jpg" },
   { "numero": 5,  "nombre": "Thiago Vera",     "posicion": "Mediocampista", "foto": "/assets/img/jugador-5.jpg" },
-  { "numero": 8,  "nombre": "Agustín Sosa",     "posicion": "Mediocampista", "foto": "" },
-  { "numero": 10, "nombre": "Santino Medina",   "posicion": "Mediocampista", "foto": "" },
-  { "numero": 14, "nombre": "Valentín Correa",  "posicion": "Mediocampista", "foto": "" },
-  { "numero": 7,  "nombre": "Ezequiel Romero",  "posicion": "Delantero",     "foto": "" },
+  { "numero": 8,  "nombre": "Marcos Jara",     "posicion": "Mediocampista", "foto": "/assets/img/jugador-8.jpg" },
+  { "numero": 10, "nombre": "darian Rojas",   "posicion": "Mediocampista", "foto": "/assets/img/jugador-10.jpg" },
+  { "numero": 14, "nombre": "Uriel Barvie",  "posicion": "Mediocampista", "foto": "/assets/img/jugador-14.jpg" },
+  { "numero": 7,  "nombre": "Ignacio Leiva",  "posicion": "Delantero",     "foto": "/assets/img/jugador-7.jpg" },
   { "numero": 9,  "nombre": "Tiziano Curia",  "posicion": "Delantero",     "foto": "/assets/img/jugador-9.jpg" },
-  { "numero": 11, "nombre": "Mateo Quiroga",    "posicion": "Delantero",     "foto": "" }
+  { "numero": 11, "nombre": "Mirko Cabral",    "posicion": "Delantero",     "foto": "/assets/img/jugador-11.jpg" }
 ]
