@@ -3,13 +3,13 @@
   { "numero": 12, "nombre": "Bruno Acosta",     "posicion": "Arquero",       "foto": "" },
   { "numero": 2,  "nombre": "Lucas Ferreyra",   "posicion": "Defensor",      "foto": "" },
   { "numero": 4,  "nombre": "Nicolás Paredes",  "posicion": "Defensor",      "foto": "" },
-  { "numero": 6,  "nombre": "Joaquín Ríos",     "posicion": "Defensor",      "foto": "" },
+   { "numero": 6,  "nombre": "Tobias Villasboa",     "posicion": "Defensor",      "foto": "/assets/img/jugador-6.jpg" },
   { "numero": 3,  "nombre": "Facundo Molina",   "posicion": "Defensor",      "foto": "" },
   { "numero": 5,  "nombre": "Tomás Ibarra",     "posicion": "Mediocampista", "foto": "" },
   { "numero": 8,  "nombre": "Agustín Sosa",     "posicion": "Mediocampista", "foto": "" },
   { "numero": 10, "nombre": "Santino Medina",   "posicion": "Mediocampista", "foto": "" },
   { "numero": 14, "nombre": "Valentín Correa",  "posicion": "Mediocampista", "foto": "" },
   { "numero": 7,  "nombre": "Ezequiel Romero",  "posicion": "Delantero",     "foto": "" },
-  { "numero": 9,  "nombre": "Gonzalo Benítez",  "posicion": "Delantero",     "foto": "" },
+  { "numero": 9,  "nombre": "Tiziano Curia",  "posicion": "Delantero",     "foto": "/assets/img/jugador-9.jpg" },
   { "numero": 11, "nombre": "Mateo Quiroga",    "posicion": "Delantero",     "foto": "" }
 ]
