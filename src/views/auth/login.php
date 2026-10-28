@@ -7,7 +7,10 @@ if (!empty($_SESSION['user_id'])) {
     exit;
 }
 
-$error = '';
+// Mensaje y email del intento anterior (si falló); se borran para que no se repitan
+$error = $_SESSION['login_error'] ?? '';
+$emailAnterior = $_SESSION['login_email'] ?? '';
+unset($_SESSION['login_error'], $_SESSION['login_email']);
 $aviso = isset($_GET['registrado']) ? '¡Cuenta creada! Ya podés iniciar sesión.'
        : (isset($_GET['restablecida']) ? 'Listo, cambiaste tu contraseña. Ya podés iniciar sesión.' : '');
 
@@ -31,7 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: /src/views/index.php');
         exit;
     }
-    $error = 'Correo o contraseña incorrectos.';
+    // Si falla, volvemos al login con GET: así el botón "Atrás" no pide reenviar el formulario
+    $_SESSION['login_error'] = 'Correo o contraseña incorrectos.';
+    $_SESSION['login_email'] = $email;
+    header('Location: /src/views/auth/login.php');
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -67,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="login.php" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico</label>
-                <input type="email" name="email" required placeholder="socio@peritas.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
+                <input type="email" name="email" required placeholder="socio@peritas.com" value="<?= htmlspecialchars($emailAnterior) ?>" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña</label>
