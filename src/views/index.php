@@ -246,5 +246,10 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 </script>
 <script>window.PFC_USER = <?= json_encode(['name' => $user['name'], 'email' => $user['email']], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="/assets/js/asistente.js"></script>
+<script>
+    // Si el navegador muestra esta página desde su memoria (botón "Atrás" o "Adelante"),
+    // la recargamos para que el servidor vuelva a revisar la sesión
+    window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+</script>
 </body>
 </html>

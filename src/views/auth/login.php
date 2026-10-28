@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../../config/bootstrap.php';
 
-// Si ya inició sesión, lo mandamos al portal
+// Si vuelve al login con la sesión abierta (por ejemplo con el botón "Atrás"), se cierra la sesión
 if (!empty($_SESSION['user_id'])) {
-    header('Location: /src/views/index.php');
-    exit;
+    $_SESSION = [];
+    session_destroy();
+    session_start();
+    session_regenerate_id(true);
 }
 
 // Mensaje y email del intento anterior (si falló); se borran para que no se repitan
@@ -92,5 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+<script>
+    // Si el navegador muestra esta página desde su memoria (botón "Atrás" o "Adelante"),
+    // la recargamos para que el servidor vuelva a revisar la sesión
+    window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+</script>
 </body>
 </html>
