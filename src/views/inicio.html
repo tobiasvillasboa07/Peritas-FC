@@ -137,7 +137,7 @@
                 <div class="absolute inset-0 pitch-bg"></div>
                 <!-- Foto del rival (assets/img/partidos): la pone startCountdown() si existe -->
                 <div id="hero-foto" class="absolute inset-0 hidden"></div>
-                <svg class="absolute right-[-60px] top-1/2 -translate-y-1/2 h-[120%] w-auto opacity-25 hidden md:block" viewBox="0 0 400 400" fill="none" stroke="#ffb829" stroke-width="3" aria-hidden="true">
+                <svg  id="hero-cancha" class="absolute right-[-60px] top-1/2 -translate-y-1/2 h-[120%] w-auto opacity-25 hidden md:block" viewBox="0 0 400 400" fill="none" stroke="#ffb829" stroke-width="3" aria-hidden="true">
                     <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="6" fill="#ffb829"/><line x1="200" y1="0" x2="200" y2="400"/><rect x="-20" y="110" width="110" height="180"/>
                 </svg>
                 
@@ -960,6 +960,8 @@
                     const capa = document.getElementById('hero-foto');
                     capa.style.background = `linear-gradient(to right, rgba(0,0,0,.92) 35%, rgba(0,0,0,.45) 100%), url('${proximo.foto}') center / cover`;
                     capa.classList.remove('hidden');
+                    document.getElementById('hero-cancha').style.display = 'none';   
+                // con foto, sin el dibujo de la cancha
                 }
                 document.getElementById('hero-texto').innerText =
                     `El ${dia} a las ${hora} hs jugamos en el ${proximo.stadium}. Vení a alentar al gigante de la tecnología y asegurá tu lugar antes de que se agoten las entradas.`;
