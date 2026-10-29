@@ -43,7 +43,7 @@ $campo = 'w-full bg-slate-900 border border-[#2a2a2a] rounded-xl px-3 py-2 text-
 <body class="bg-[#000000] text-slate-100 font-['Poppins'] min-h-screen">
 <header class="bg-[#0a0a0a] border-b border-[#2a2a2a]/30"><div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
     <span class="font-extrabold text-lg"><img src="/assets/img/escudo-chico.png" alt="" class="inline-block h-9 w-auto mr-2 align-middle">PERITAS <span class="text-[#ffb829]">FC</span> · Administración</span>
-    <a href="/src/views/index.php" class="text-sm text-slate-300 hover:text-white">Volver a mi portal</a></div></header>
+    <a href="/src/views/portal.php" class="text-sm text-slate-300 hover:text-white">Volver a mi portal</a></div></header>
 <main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
     <h1 class="text-3xl font-black">Partidos</h1>
     <?php if ($msg): ?><div class="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm rounded-xl px-4 py-3"><?= e($msg) ?></div><?php endif; ?>

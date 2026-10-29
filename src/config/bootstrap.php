@@ -4,7 +4,7 @@
  *
  * Se incluye al principio de cada "entry point" (archivos a los que
  * se accede directamente por URL: index.php, controllers/*.php).
- * Las vistas que se incluyen con require/include (layout.php, login.php, etc.)
+ * Las vistas que se incluyen con require/include (por ejemplo las de src/views/posts)
  * NO necesitan llamarlo: ya van a recibir la sesión abierta.
  */
  

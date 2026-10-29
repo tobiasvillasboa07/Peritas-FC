@@ -2,7 +2,7 @@
 // Administración: estadísticas del club (solo admin)
 require_once __DIR__ . '/../../config/bootstrap.php';
 require_once __DIR__ . '/../../config/admin.php';
-require_once __DIR__ . '/../../config/mercadopago.php';   // tablas de pagos y generar_cuota_mes()
+require_once __DIR__ . '/../../models/mercadopago.php';   // tablas de pagos y generar_cuota_mes()
 require_once __DIR__ . '/../_layouts/club.php';
 requerir_admin($pdo);
 

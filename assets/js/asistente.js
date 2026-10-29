@@ -105,8 +105,8 @@ document.body.insertAdjacentHTML('beforeend', html);
             </div>`);
         input.value = '';
         box.scrollTop = box.scrollHeight;
-                // Respuesta del servidor (chatbot.php); si falla, contesta el navegador
-        fetch('/chatbot.php', {
+                // Respuesta del servidor (src/controllers/chatbot.php); si falla, contesta el navegador
+        fetch('/src/controllers/chatbot.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'mensaje=' + encodeURIComponent(text)

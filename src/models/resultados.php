@@ -53,10 +53,10 @@ function guardar_resultado(PDO $pdo, string $torneo, string $fecha, string $loca
         ->execute([$torneo, date('Y-m-d', $dia), $local, $visitante, (int)$golesLocal, (int)$golesVisitante]);
 }
 
-/** Los últimos resultados (los más nuevos primero). */
-function ultimos_resultados(PDO $pdo, int $limite = 10): array {
-    $st = $pdo->prepare('SELECT * FROM resultados ORDER BY fecha DESC, id DESC LIMIT ?');
-    $st->execute([$limite]);
+/** Los últimos partidos de Peritas FC (los más nuevos primero). Los de otros equipos solo se usan para la tabla. */
+function ultimos_partidos_del_club(PDO $pdo, int $limite = 10): array {
+    $st = $pdo->prepare('SELECT * FROM resultados WHERE local = ? OR visitante = ? ORDER BY fecha DESC, id DESC LIMIT ?');
+    $st->execute([NOMBRE_CLUB, NOMBRE_CLUB, $limite]);
     return $st->fetchAll();
 }
 

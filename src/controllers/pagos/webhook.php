@@ -4,7 +4,7 @@
  * por ejemplo el puerto de Codespaces en modo "Public". Si no llega, retorno.php igual confirma el pago.
  */
 require_once __DIR__ . '/../../config/bootstrap.php';
-require_once __DIR__ . '/../../config/mercadopago.php';
+require_once __DIR__ . '/../../models/mercadopago.php';
 
 $body = json_decode(file_get_contents('php://input'), true) ?: [];
 $tipo = $body['type'] ?? $_GET['type'] ?? $_GET['topic'] ?? '';

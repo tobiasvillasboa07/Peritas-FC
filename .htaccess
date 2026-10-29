@@ -1,6 +1,8 @@
+# Configuración para Apache (por ejemplo XAMPP).
+# En Render usamos el servidor de PHP, que no lee este archivo: ahí hace lo mismo router.php.
 DirectoryIndex index.php
 
-<Files .env>
-    Order allow,deny
-    Deny from all
-</Files>
+# No dejar abrir archivos privados: .env, la base de datos y los de configuración
+<FilesMatch "(^\.|\.(sqlite|sqlite3|db|sql|sh|yml|yaml|log)$|^Dockerfile$)">
+    Require all denied
+</FilesMatch>

@@ -4,7 +4,7 @@
  * Responde JSON: { ok: true, init_point: "https://..." }  o  { ok: true, gratis: true }  o  { ok: false, error: "..." }
  */
 require_once __DIR__ . '/../../config/bootstrap.php';
-require_once __DIR__ . '/../../config/mercadopago.php';
+require_once __DIR__ . '/../../models/mercadopago.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

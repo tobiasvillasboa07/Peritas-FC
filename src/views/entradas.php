@@ -6,7 +6,7 @@ $uid = $_SESSION['user_id'];
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function plata($n) { return $n == 0 ? 'Gratis' : 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 
-require_once __DIR__ . '/../config/mercadopago.php';   // SECTORES, precio_sector() y crear_compra()
+require_once __DIR__ . '/../models/mercadopago.php';   // SECTORES, precio_sector() y crear_compra()
 $precio = fn($k) => precio_sector($pdo, $uid, $k);
 $esPleno = $precio('popular_norte') == 0;   // Pleno con la cuota al día: Tribuna Popular gratis
 $st = $pdo->prepare('SELECT categoria FROM users WHERE id = ?');
@@ -48,15 +48,16 @@ $partidos = $q->fetchAll();
 <body class="bg-[#000000] text-slate-100 font-['Poppins'] min-h-screen">
 <header class="bg-[#0a0a0a] border-b border-[#2a2a2a]/30"><div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
     <a href="/" class="font-extrabold text-lg"><img src="/assets/img/escudo-chico.png" alt="" class="inline-block h-9 w-auto mr-2 align-middle">PERITAS <span class="text-[#ffb829]">FC</span></a>
-    <a href="/src/views/index.php" class="text-sm text-slate-300 hover:text-white">Volver a mi portal</a></div></header>
+    <a href="/src/views/portal.php" class="text-sm text-slate-300 hover:text-white">Volver a mi portal</a></div></header>
 <main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
     <h1 class="text-3xl font-black">Sacá tu entrada</h1>
     <?php if ($esPleno): ?><p class="text-sm text-[#ffb829]">Como socio Pleno, la Tribuna Popular es gratis.</p><?php endif; ?>
-            <?php if ($debeCuota): ?><p class="text-sm text-yellow-300">Tenés la cuota de socio sin pagar, por eso la Tribuna Popular no te sale gratis. <a href="/src/views/index.php#cuotas" class="underline font-semibold">Pagá tu cuota</a> y volvé a sacar la entrada.</p><?php endif; ?>
+            <?php if ($debeCuota): ?><p class="text-sm text-yellow-300">Tenés la cuota de socio sin pagar, por eso la Tribuna Popular no te sale gratis. <a href="/src/views/portal.php#cuotas" class="underline font-semibold">Pagá tu cuota</a> y volvé a sacar la entrada.</p><?php endif; ?>
     <?php if ($msg): ?><div class="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm rounded-xl px-4 py-3"><?= e($msg) ?></div><?php endif; ?>
     <?php if ($err): ?><div class="bg-red-500/10 border border-red-500/40 text-red-300 text-sm rounded-xl px-4 py-3"><?= e($err) ?></div><?php endif; ?>
     <?php foreach ($partidos as $m): $quedan = $m['capacity'] - $m['vendidas']; ?>
-        <form method="POST" class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+        <?php $fondo = foto_partido($m['away_team']);   // foto del rival (assets/img/partidos) ?>
+        <form method="POST" class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between"<?php if ($fondo): ?> style="background: linear-gradient(to right, rgba(10,10,10,.95) 30%, rgba(10,10,10,.55) 100%), url('<?= e($fondo) ?>') center / cover"<?php endif; ?>>
             <input type="hidden" name="match_id" value="<?= e($m['id']) ?>">
             <div><p class="font-bold text-lg">PERITAS FC vs <?= e($m['away_team']) ?></p>
                 <p class="text-sm text-slate-400"><?= e($m['tournament']) ?> · <?= date('d/m/Y H:i', strtotime($m['match_date'])) ?> hs · <?= e($m['stadium']) ?></p>

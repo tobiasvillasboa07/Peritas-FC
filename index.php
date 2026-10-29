@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/src/config/bootstrap.php';
-require_once __DIR__ . '/src/config/mercadopago.php';
-require_once __DIR__ . '/src/config/noticias.php';
+require_once __DIR__ . '/src/models/mercadopago.php';
+require_once __DIR__ . '/src/models/noticias.php';
 
 $u = null;
 if (!empty($_SESSION['user_id'])) {
@@ -32,6 +32,7 @@ foreach ($q->fetchAll() as $m) {
         'date'       => date('d/m/Y H:i', strtotime($m['match_date'])) . ' hs',
         'fecha_iso'  => str_replace(' ', 'T', $m['match_date']),
         'sectores'   => $sectores,
+        'foto'       => foto_partido($m['away_team']),   // foto de fondo (assets/img/partidos)
     ];
 }
 
@@ -39,7 +40,7 @@ foreach ($q->fetchAll() as $m) {
 sembrar_noticias($pdo);
 $noticias = noticias_para_pagina($pdo);
 
-$html = file_get_contents(__DIR__ . '/inicio.html');
+$html = file_get_contents(__DIR__ . '/src/views/inicio.html');
 $inject = '<script>window.PFC_USER = ' . json_encode($u, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';'
         . 'window.PFC_MATCHES = ' . json_encode($partidos, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';'
         . 'window.PFC_NEWS = ' . json_encode($noticias, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . ';</script>';

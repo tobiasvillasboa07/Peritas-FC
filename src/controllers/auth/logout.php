@@ -1,4 +1,5 @@
 <?php
+// Cerrar sesión (botón "Salir"): borra la sesión y la cookie, y vuelve al inicio
 require_once __DIR__ . '/../../config/bootstrap.php';
  
 // Vaciamos los datos de la sesión
@@ -21,5 +22,5 @@ if (ini_get('session.use_cookies')) {
 // Destruimos la sesión en el servidor
 session_destroy();
  
-header('Location: /src/views/auth/login.php');
+header('Location: /');
 exit;

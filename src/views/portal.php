@@ -1,7 +1,7 @@
 <?php
 // Portal del socio: página a la que se llega después de iniciar sesión.
 require_once __DIR__ . '/../config/bootstrap.php';
-require_once __DIR__ . '/../config/mercadopago.php';
+require_once __DIR__ . '/../models/mercadopago.php';
 
 if (empty($_SESSION['user_id'])) { header('Location: /src/views/auth/login.php'); exit; }
 
@@ -100,7 +100,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             <a href="/src/views/entradas.php" class="hover:text-[#ffb829] transition py-2">ENTRADAS</a>
             <a href="/src/views/plantel.php" class="hover:text-[#ffb829] transition py-2">PLANTEL</a>
             <a href="/src/views/resultados.php" class="hover:text-[#ffb829] transition py-2">RESULTADOS</a>
-            <a href="/src/views/index.php" class="text-[#ffb829] py-2 border-b-2 border-[#ffb829]">PORTAL SOCIO</a>
+            <a href="/src/views/portal.php" class="text-[#ffb829] py-2 border-b-2 border-[#ffb829]">PORTAL SOCIO</a>
             <?php if ($user['role'] === 'admin'): ?>
                 <a href="/src/views/admin/estadisticas.php" class="text-[#ffb829] hover:text-yellow-300 transition py-2">ADMIN</a>
             <?php endif; ?>
@@ -115,7 +115,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
                 <span class="block font-semibold"><?= e($user['name']) ?></span>
                 <span class="block text-xs text-[#ffb829]"><?= $user['role'] === 'admin' ? 'Administrador' : 'Socio ' . e(strtok($user['categoria'], ' ')) ?></span>
             </span>
-            <a href="/src/views/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#2a2a2a] hover:border-[#ffb829] text-xs font-semibold">Salir</a>
+            <a href="/src/controllers/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#2a2a2a] hover:border-[#ffb829] text-xs font-semibold">Salir</a>
         </div>
     </div>
 </header>
@@ -123,7 +123,8 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 <main class="max-w-6xl mx-auto px-4 py-8 space-y-10">
 
     <!-- Próximo partido -->
-    <section class="pitch-bg rounded-3xl border border-[#2a2a2a]/50 px-6 sm:px-12 py-12">
+    <?php $fondo = $partido ? foto_partido($partido['away_team']) : null;   // foto del rival (assets/img/partidos) ?>
+    <section class="<?= $fondo ? '' : 'pitch-bg' ?> rounded-3xl border border-[#2a2a2a]/50 px-6 sm:px-12 py-12"<?php if ($fondo): ?> style="background: linear-gradient(to right, rgba(0,0,0,.92) 35%, rgba(0,0,0,.45) 100%), url('<?= e($fondo) ?>') center / cover"<?php endif; ?>>
         <?php if ($partido): ?>
             <p class="text-sm text-[#ffb829] font-semibold mb-3"><?= e($partido['tournament']) ?> · <?= date('d/m/Y H:i', strtotime($partido['match_date'])) ?> hs</p>
             <h1 class="font-black text-4xl sm:text-6xl leading-none"><?= e($partido['home_team']) ?><span class="block text-[#ffb829] text-xl my-2">vs</span><span class="text-slate-200"><?= e($partido['away_team']) ?></span></h1>

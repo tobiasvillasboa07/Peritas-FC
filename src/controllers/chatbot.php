@@ -5,8 +5,8 @@
  * Responde con datos reales de la base (próximo partido, precios, cuotas)
  * y con las preguntas frecuentes de la tabla bot_faqs. Guarda la charla en bot_messages.
  */
-require_once __DIR__ . '/src/config/bootstrap.php';
-require_once __DIR__ . '/src/config/mercadopago.php';   // SECTORES y cuotas
+require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../models/mercadopago.php';   // SECTORES y cuotas
 
 header('Content-Type: application/json; charset=utf-8');
 

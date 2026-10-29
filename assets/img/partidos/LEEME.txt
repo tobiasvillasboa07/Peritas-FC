@@ -1,0 +1,19 @@
+FOTOS DE FONDO DE LOS PARTIDOS
+==============================
+
+Las fotos de esta carpeta aparecen de fondo en los partidos:
+el banner del próximo partido (inicio y portal), las tarjetas de Entradas
+y las tarjetas de Resultados.
+
+Cómo se llama cada foto: igual que el rival, en minúsculas y con guiones.
+  Racing Digital      -> racing-digital.jpg
+  Alianza Deportiva   -> alianza-deportiva.jpg
+  Unión Tecnológica   -> union-tecnologica.jpg
+  Atlético Central    -> atletico-central.jpg
+
+Sirven .jpg, .jpeg, .png y .webp. Las mayúsculas y los acentos no importan.
+
+Si un rival no tiene foto, se usa general.jpg (si existe).
+Si tampoco está general.jpg, queda el fondo de cancha de siempre.
+
+Conviene que sean fotos horizontales y no muy pesadas (menos de 500 KB).

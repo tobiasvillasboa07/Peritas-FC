@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id' => $user['id'], 'name' => $user['name'], 'email' => $user['email'],
             'role' => $user['role'], 'categoria' => $user['categoria'],
         ];
-        header('Location: /src/views/index.php');
+        header('Location: /src/views/portal.php');
         exit;
     }
     // Si falla, volvemos al login con GET: así el botón "Atrás" no pide reenviar el formulario

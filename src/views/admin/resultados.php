@@ -2,7 +2,7 @@
 // Administración: cargar y borrar resultados (solo admin)
 require_once __DIR__ . '/../../config/bootstrap.php';
 require_once __DIR__ . '/../../config/admin.php';
-require_once __DIR__ . '/../../config/resultados.php';
+require_once __DIR__ . '/../../models/resultados.php';
 require_once __DIR__ . '/../_layouts/club.php';
 requerir_admin($pdo);
 preparar_resultados($pdo);

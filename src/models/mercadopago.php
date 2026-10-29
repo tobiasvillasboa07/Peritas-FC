@@ -10,7 +10,7 @@
  *
  * Necesita en el .env:  MP_ACCESS_TOKEN=TEST-xxxx   (y opcional APP_URL=https://tu-url)
  */
-require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/../config/env.php';
 
 // Sectores y precios de las entradas: se leen de assets/data/partidos.json
 require_once __DIR__ . '/partidos.php';

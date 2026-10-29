@@ -61,3 +61,28 @@ function sincronizar_partidos(PDO $pdo): void {
     }
     $pdo->prepare("INSERT OR REPLACE INTO ajustes (clave, valor) VALUES ('partidos_json', ?)")->execute([$huella]);
 }
+
+
+/**
+ * Foto de fondo para un partido contra $rival.
+ * Busca en assets/img/partidos una foto con el nombre del rival (por ejemplo "racing-digital.jpg").
+ * Si no hay, usa "general.jpg". Si tampoco hay, devuelve null y queda el fondo de cancha de siempre.
+ */
+function foto_partido(string $rival): ?string {
+    static $fotos = null;
+    if ($fotos === null) {
+        $fotos = [];
+        foreach (glob(__DIR__ . '/../../assets/img/partidos/*') ?: [] as $archivo) {
+            if (preg_match('/\.(jpe?g|png|webp)$/i', $archivo)) {
+                $fotos[nombre_de_archivo(pathinfo($archivo, PATHINFO_FILENAME))] = '/assets/img/partidos/' . rawurlencode(basename($archivo));
+            }
+        }
+    }
+    return $fotos[nombre_de_archivo($rival)] ?? $fotos['general'] ?? null;
+}
+
+/** "Unión Tecnológica" -> "union-tecnologica": minúsculas, sin acentos y con guiones. */
+function nombre_de_archivo(string $texto): string {
+    $texto = strtr(mb_strtolower(trim($texto)), ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n']);
+    return trim(preg_replace('/[^a-z0-9]+/', '-', $texto), '-');
+}

@@ -1,11 +1,12 @@
 <?php
 // Resultados y tabla de posiciones (página pública)
 require_once __DIR__ . '/../config/bootstrap.php';
-require_once __DIR__ . '/../config/resultados.php';
+require_once __DIR__ . '/../models/resultados.php';
+require_once __DIR__ . '/../models/partidos.php';   // foto_partido()
 require_once __DIR__ . '/_layouts/club.php';
 
 preparar_resultados($pdo);
-$ultimos = ultimos_resultados($pdo, 12);
+$ultimos = ultimos_partidos_del_club($pdo, 12);   // solo los de Peritas FC (la tabla usa todos)
 $torneos = torneos_con_resultados($pdo);
 
 club_inicio($pdo, 'Resultados', 'resultados');
@@ -16,12 +17,13 @@ club_inicio($pdo, 'Resultados', 'resultados');
     </section>
 
     <section class="space-y-4">
-        <h2 class="text-2xl">Últimos partidos</h2>
+        <h2 class="text-2xl">Últimos partidos de Peritas FC</h2>
         <?php if (!$ultimos): ?><p class="text-slate-400 text-sm">Todavía no hay resultados cargados.</p><?php endif; ?>
         <div class="grid sm:grid-cols-2 gap-3">
             <?php foreach ($ultimos as $r):
-                $esNuestro = in_array(NOMBRE_CLUB, [$r['local'], $r['visitante']], true); ?>
-                <article class="rounded-2xl border <?= $esNuestro ? 'border-[#8052ff]/60' : 'border-[#1f1f1f]' ?> bg-[#0a0a0a] px-5 py-4">
+                $rival = $r['local'] === NOMBRE_CLUB ? $r['visitante'] : $r['local'];
+                $fondo = foto_partido($rival);   // foto del rival (assets/img/partidos) ?>
+                <article class="rounded-2xl border border-[#8052ff]/60 bg-[#0a0a0a] px-5 py-5"<?php if ($fondo): ?> style="background: linear-gradient(rgba(0,0,0,.72), rgba(0,0,0,.72)), url('<?= e($fondo) ?>') center / cover"<?php endif; ?>>
                     <p class="text-[11px] text-slate-400 uppercase tracking-wide"><?= e($r['torneo']) ?> · <?= date('d/m/Y', strtotime($r['fecha'])) ?></p>
                     <div class="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
                         <span class="text-sm <?= $r['local'] === NOMBRE_CLUB ? 'text-white font-semibold' : 'text-slate-300' ?>"><?= e($r['local']) ?></span>

@@ -12,5 +12,5 @@ fi
 if [ -n "$ADMIN_EMAIL" ]; then
   php -r '$p = new PDO("sqlite:/app/database.sqlite"); $s = $p->prepare("UPDATE users SET role = ? WHERE lower(email) = lower(?)"); $s->execute(["admin", getenv("ADMIN_EMAIL")]);'
 fi
-# Arranca la página y sube los cambios de la base al bucket
-exec litestream replicate -config /etc/litestream.yml -exec "php -S 0.0.0.0:${PORT:-8000}"
+# Arranca la página (con router.php, que no deja descargar archivos privados) y sube los cambios de la base al bucket
+exec litestream replicate -config /etc/litestream.yml -exec "php -S 0.0.0.0:${PORT:-8000} router.php"

@@ -93,7 +93,7 @@
                 <a href="/#tickets" onclick="navigate('tickets'); return false;" id="nav-tickets" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">ENTRADAS</a>
                 <a href="/src/views/plantel.php" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PLANTEL</a>
                 <a href="/src/views/resultados.php" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">RESULTADOS</a>
-                <a href="/src/views/index.php" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
+                <a href="/src/views/portal.php" id="nav-member" class="hover:text-club-gold transition py-2 border-b-2 border-transparent">PORTAL SOCIO</a>
                 <button onclick="openChatbotModal()" class="px-3.5 py-1.5 bg-club-gold/15 border border-club-gold/50 text-club-gold rounded-full hover:bg-club-gold hover:text-club-dark transition flex items-center gap-2 text-xs font-black shadow-sm">
                     <i class="fa-solid fa-robot text-sm animate-pulse"></i> ASISTENTE
                 </button>
@@ -135,6 +135,8 @@
             <div class="relative rounded-3xl overflow-hidden bg-club-navy border border-club-blue/50 shadow-2xl">
                 <!-- Cover Image -->
                 <div class="absolute inset-0 pitch-bg"></div>
+                <!-- Foto del rival (assets/img/partidos): la pone startCountdown() si existe -->
+                <div id="hero-foto" class="absolute inset-0 hidden"></div>
                 <svg class="absolute right-[-60px] top-1/2 -translate-y-1/2 h-[120%] w-auto opacity-25 hidden md:block" viewBox="0 0 400 400" fill="none" stroke="#ffb829" stroke-width="3" aria-hidden="true">
                     <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="6" fill="#ffb829"/><line x1="200" y1="0" x2="200" y2="400"/><rect x="-20" y="110" width="110" height="180"/>
                 </svg>
@@ -576,7 +578,7 @@
 
         // SESIÓN REAL: los datos del usuario los pone index.php en window.PFC_USER
         function logout() {
-            window.location.href = '/src/views/auth/logout.php';
+            window.location.href = '/src/controllers/auth/logout.php';
         }
 
         function updateAuthHeader() {
@@ -665,8 +667,8 @@
             input.value = '';
             messagesBox.scrollTop = messagesBox.scrollHeight;
 
-            // 2. Enviar datos al backend PHP (chatbot.php) vía fetch AJAX
-            fetch('/chatbot.php', {
+            // 2. Enviar datos al backend PHP (src/controllers/chatbot.php) vía fetch AJAX
+            fetch('/src/controllers/chatbot.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `mensaje=${encodeURIComponent(text)}&nombre=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}`
@@ -787,7 +789,7 @@
 
             MOCK_DB.matches.forEach(m => {
                 html += `
-                    <div class="bg-club-navy border border-club-blue/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-club-gold/40 transition">
+                    <div class="bg-club-navy border border-club-blue/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-club-gold/40 transition"${m.foto ? ` style="background: linear-gradient(to right, rgba(10,10,10,.95) 30%, rgba(10,10,10,.55) 100%), url('${m.foto}') center / cover"` : ''}>
                         <div class="space-y-2 text-center md:text-left">
                             <span class="text-[10px] bg-club-blue/50 text-club-gold px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">${m.tournament}</span>
                             <h4 class="text-lg font-black text-white uppercase">${m.opponent}</h4>
@@ -953,6 +955,12 @@
                 const dia = fecha.toLocaleDateString('es-AR', { weekday: 'long' }) + ' ' + fecha.getDate() + ' de ' + fecha.toLocaleDateString('es-AR', { month: 'long' });
                 const hora = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
                 document.getElementById('hero-rival').innerText = proximo.opponent;
+                // Foto de fondo del rival (si hay una en assets/img/partidos)
+                if (proximo.foto) {
+                    const capa = document.getElementById('hero-foto');
+                    capa.style.background = `linear-gradient(to right, rgba(0,0,0,.92) 35%, rgba(0,0,0,.45) 100%), url('${proximo.foto}') center / cover`;
+                    capa.classList.remove('hidden');
+                }
                 document.getElementById('hero-texto').innerText =
                     `El ${dia} a las ${hora} hs jugamos en el ${proximo.stadium}. Vení a alentar al gigante de la tecnología y asegurá tu lugar antes de que se agoten las entradas.`;
             } else if (window.PFC_MATCHES) {
@@ -994,7 +1002,7 @@
             const rutas = {
                 login: '/src/views/auth/login.php',
                 register: '/src/views/auth/register.php',
-                member: '/src/views/index.php'
+                member: '/src/views/portal.php'
             };
             if (rutas[viewName]) { window.location.href = rutas[viewName]; return; }
             return navigateSimulado(viewName);
