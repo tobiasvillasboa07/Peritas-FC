@@ -28,7 +28,7 @@ panel de administración.
 | **Portal del socio** | Credencial, cuotas mensuales (se pagan con Mercado Pago), mis entradas e **historial de pagos**. |
 | **Asistente** | Responde con datos reales: próximo partido, precios, cuota del socio, cómo asociarse y la sede. |
 | **Administración** | **Estadísticas** (socios, recaudación, ocupación por partido, deudores), partidos, resultados y noticias. Solo para usuarios con rol `admin`. |
-| **Cuenta** | Registro (queda logueado al crear la cuenta), login, "¿Olvidaste tu contraseña?" (con email + DNI) y salir. Si se vuelve al login con el botón "Atrás", la sesión se cierra. |
+| **Cuenta** | Registro (queda logueado al crear la cuenta), login, "¿Olvidaste tu contraseña?" (llega un link por mail) y salir. Si se vuelve al login con el botón "Atrás", la sesión se cierra. |
 
 ## Cómo están ordenados los archivos
 
@@ -54,7 +54,7 @@ assets/              Lo que se manda tal cual al navegador
 
 src/                 El código PHP (lo que corre en el servidor)
   config/              Arranque: hora, sesión, conexión a la base, .env y control de admin
-  models/              Datos y reglas del club: pagos y cuotas (Mercado Pago), partidos, noticias y resultados
+  models/              Datos y reglas del club: pagos y cuotas (Mercado Pago), partidos, noticias, resultados y recuperar contraseña
   controllers/         Reciben una acción y responden: pagos, asistente, noticias del admin y cerrar sesión
   views/               Las páginas que se ven
     inicio.html          Inicio, noticias y entradas (una sola página con JavaScript)
@@ -75,6 +75,7 @@ src/                 El código PHP (lo que corre en el servidor)
 - **Tailwind CSS** (desde CDN) + `assets/css/dala.css` con los colores del club (negro, violeta y ámbar).
 - **JavaScript** sin librerías para la página de inicio, el asistente y la cuenta regresiva.
 - **Mercado Pago Checkout Pro** para cobrar entradas y cuotas (con cURL, sin librerías).
+- **Brevo** para mandar el mail de recuperar contraseña (también con cURL).
 - **Docker + Render** para publicar, y **Litestream** para guardar la base en la nube (Backblaze B2).
 
 ## Cómo correrlo (Codespaces o tu compu)
@@ -117,18 +118,26 @@ php -r '$p=new PDO("sqlite:database.sqlite"); $p->exec("UPDATE users SET role=\"
 
 Para probar: token de prueba, **tarjetas de prueba** de Mercado Pago y ventana de incógnito.
 
+## Recuperar la contraseña
+
+1. En "¿Olvidaste tu contraseña?" el socio pone su mail. La página responde siempre lo mismo, exista o no el mail, así nadie puede averiguar quién es socio.
+2. Si es socio, `src/models/recuperar.php` genera un código al azar de 64 caracteres, guarda en la tabla `recuperaciones` **solo su hash** y le manda un mail (API de Brevo) con el link a `restablecer.php`.
+3. El link vence a los 30 minutos y sirve **una sola vez**. Se pueden pedir hasta 3 links por hora.
+4. Sin `BREVO_API_KEY` (en Codespaces o en tu compu) el link aparece en la terminal donde corre `php -S`, para probar.
+
 ## Publicación en Render
 
 - Render arma la imagen con el `Dockerfile` y ejecuta `run.sh`.
 - `run.sh` baja la base guardada en Backblaze (Litestream), la crea si no existe, da rol admin a `ADMIN_EMAIL` y arranca el servidor con `router.php`.
-- Variables de entorno en Render (**Environment**): `MP_ACCESS_TOKEN`, `ADMIN_EMAIL`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY`.
+- Variables de entorno en Render (**Environment**): `MP_ACCESS_TOKEN`, `ADMIN_EMAIL`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY`, `BREVO_API_KEY`, `MAIL_FROM` y `APP_URL`.
 - En el plan gratis la página "se duerme" a los 15 minutos sin visitas y tarda unos segundos en despertar.
 
 ## Seguridad
 
 - Contraseñas guardadas con `password_hash` y comprobadas con `password_verify`.
+- Para recuperar la contraseña hace falta abrir el link que llega al mail del socio (vence a los 30 minutos y sirve una sola vez); no alcanza con saber su DNI.
 - Consultas con PDO y parámetros (sin SQL armado a mano con datos del usuario).
 - Sesiones en todas las páginas privadas; las de administración controlan que el usuario sea `admin`.
 - El precio y el estado de cada pago se verifican en el servidor contra Mercado Pago.
-- El token de Mercado Pago y las claves de Litestream van en variables de entorno, nunca en el repo.
+- El token de Mercado Pago y las claves de Litestream y de Brevo van en variables de entorno, nunca en el repo.
 - `router.php` y `.htaccess` no dejan descargar la base de datos, el `.env` ni los archivos de configuración.

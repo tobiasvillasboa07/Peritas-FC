@@ -1,36 +1,21 @@
 <?php
 /**
- * Recuperar la contraseña: el socio confirma su correo y su DNI y elige una contraseña nueva.
- * (Una página real mandaría un link por mail; acá usamos el DNI como dato de verificación.)
+ * Recuperar la contraseña: el socio pone su correo y, si es socio, le llega un link
+ * para elegir una contraseña nueva (ver src/models/recuperar.php).
  */
 require_once __DIR__ . '/../../config/bootstrap.php';
-
-$error = '';
+require_once __DIR__ . '/../../models/recuperar.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email    = strtolower(trim($_POST['email'] ?? ''));
-    $dni      = trim($_POST['dni'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $repetir  = $_POST['repetir'] ?? '';
-
-    if (strlen($password) < 8) {
-        $error = 'La contraseña nueva debe tener al menos 8 caracteres.';
-    } elseif ($password !== $repetir) {
-        $error = 'Las contraseñas no coinciden.';
-    } else {
-        $st = $pdo->prepare('SELECT id FROM users WHERE lower(email) = ? AND dni = ?');
-        $st->execute([$email, $dni]);
-        $id = $st->fetchColumn();
-        if ($id) {
-            $pdo->prepare('UPDATE users SET password = ? WHERE id = ?')
-                ->execute([password_hash($password, PASSWORD_DEFAULT), $id]);
-            header('Location: login.php?restablecida=1');
-            exit;
-        }
-        $error = 'El correo y el DNI no coinciden con ningún socio.';
+    $email = strtolower(trim($_POST['email'] ?? ''));
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        pedir_recuperacion($pdo, $email);
     }
+    // Siempre el mismo mensaje, exista o no el correo. Volvemos con GET para que "Atrás" no reenvíe el formulario
+    header('Location: olvide.php?enviado=1');
+    exit;
 }
-$campo = 'w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm';
+$enviado = isset($_GET['enviado']);
 ?>
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-slate-950 text-slate-100">
@@ -51,32 +36,23 @@ $campo = 'w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl tex
         <div class="text-center space-y-2">
             <img src="/assets/img/escudo.png" alt="Escudo de Peritas FC" class="h-24 w-auto mx-auto mb-2">
             <h1 class="text-2xl font-extrabold text-white">Recuperá tu contraseña</h1>
-            <p class="text-xs text-slate-400">Confirmá tu correo y tu DNI y elegí una contraseña nueva</p>
+            <p class="text-xs text-slate-400">Poné tu correo y te mandamos un link para elegir una contraseña nueva</p>
         </div>
 
-        <?php if ($error): ?>
-            <div class="bg-red-500/10 border border-red-500/40 text-red-300 text-xs rounded-xl px-4 py-3"><?= htmlspecialchars($error) ?></div>
+        <?php if ($enviado): ?>
+            <div class="bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-xs rounded-xl px-4 py-3 space-y-1">
+                <p>Si el correo es de un socio de Peritas FC, te mandamos un link para cambiar la contraseña.</p>
+                <p>Revisá también la carpeta de spam. El link vence en <?= MINUTOS_LINK ?> minutos.</p>
+            </div>
         <?php endif; ?>
 
         <form action="olvide.php" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Correo Electrónico</label>
-                <input type="email" name="email" required placeholder="socio@peritas.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" class="<?= $campo ?>">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">DNI</label>
-                <input type="text" name="dni" required inputmode="numeric" maxlength="8" placeholder="Ej: 45123987" value="<?= htmlspecialchars($_POST['dni'] ?? '') ?>" class="<?= $campo ?>">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Contraseña nueva</label>
-                <input type="password" name="password" required minlength="8" placeholder="••••••••" class="<?= $campo ?>">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1">Repetir contraseña</label>
-                <input type="password" name="repetir" required minlength="8" placeholder="••••••••" class="<?= $campo ?>">
+                <input type="email" name="email" required placeholder="socio@peritas.com" class="w-full bg-slate-900 border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-[#ffb829] transition text-sm">
             </div>
             <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-black tracking-wide rounded-xl shadow-lg hover:scale-[1.01] transition">
-                CAMBIAR CONTRASEÑA
+                <?= $enviado ? 'MANDAR OTRO LINK' : 'MANDARME EL LINK' ?>
             </button>
         </form>
 
