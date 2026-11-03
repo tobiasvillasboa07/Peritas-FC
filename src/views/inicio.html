@@ -404,12 +404,6 @@
 
     <!-- CHATBOT FLOATING BUTTON & DIALOG WIDGET -->
     <div id="chatbot-wrapper" class="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 flex flex-col items-end">
-        <!-- Persistent Interactive Callout Badge -->
-        <div id="chatbot-badge-prompt" onclick="openChatbotModal()" class="cursor-pointer bg-gradient-to-r from-club-gold via-yellow-400 to-club-gold text-club-dark text-xs font-black px-3.5 py-2 rounded-2xl shadow-xl border-2 border-yellow-200 mb-2 flex items-center gap-2 animate-bounce hover:scale-105 transition">
-            <i class="fa-solid fa-robot text-base"></i>
-            <span>¡Hola! ¿Dudas sobre el club? Preguntame</span>
-            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-        </div>
 
         <!-- Chatbot Window -->
         <div id="chatbot-modal" class="hidden w-[340px] sm:w-[380px] h-[480px] bg-club-navy border-2 border-club-gold/60 rounded-3xl shadow-2xl flex flex-col overflow-hidden mb-3 transition-all duration-300">
@@ -453,8 +447,8 @@
             </div>
         </div>
 
-        <!-- Toggle Button -->
-        <button onclick="toggleChatbot()" class="w-14 h-14 rounded-full bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black text-xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition relative border-2 border-club-dark group">
+        <!-- Toggle Button: el chat arranca cerrado y se abre recién al tocarlo -->
+        <button onclick="toggleChatbot()" title="¿Necesitás ayuda?" aria-label="Abrir el asistente" class="w-14 h-14 rounded-full bg-gradient-to-r from-club-gold to-yellow-500 text-club-dark font-black text-xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition relative border-2 border-club-dark group">
             <i class="fa-solid fa-comments group-hover:rotate-12 transition transform"></i>
             <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-club-dark animate-ping"></span>
             <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-club-dark"></span>
@@ -533,11 +527,6 @@
             updateAuthHeader();
             // Ir a la sección del # de la URL (por ej. /#news) o al inicio
             navigate(['news', 'tickets'].includes(vistaInicial) ? vistaInicial : 'home');
-
-            // Auto open chatbot modal after 1 second so it's visually active on page load
-            setTimeout(() => {
-                openChatbotModal();
-            }, 1000);
         };
 
         // ROUTER / NAVIGATOR SYSTEM
@@ -601,14 +590,7 @@
 
         function toggleChatbot() {
             const modal = document.getElementById('chatbot-modal');
-            const promptBadge = document.getElementById('chatbot-badge-prompt');
-            
             modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) {
-                if (promptBadge) promptBadge.classList.add('hidden');
-            } else {
-                if (promptBadge) promptBadge.classList.remove('hidden');
-            }
 
             updateChatbotUserLabel();
             if (!modal.classList.contains('hidden')) {
@@ -619,11 +601,8 @@
 
         function openChatbotModal() {
             const modal = document.getElementById('chatbot-modal');
-            const promptBadge = document.getElementById('chatbot-badge-prompt');
-            
             modal.classList.remove('hidden');
-            if (promptBadge) promptBadge.classList.add('hidden');
-            
+
             updateChatbotUserLabel();
             const messagesBox = document.getElementById('chatbot-messages');
             if (messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;

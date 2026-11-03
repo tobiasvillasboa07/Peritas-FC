@@ -10,11 +10,6 @@
 
     const html = `
     <div id="chatbot-wrapper" class="fixed bottom-6 right-4 md:right-6 z-50 flex flex-col items-end">
-        <div id="chatbot-badge-prompt" onclick="openChatbotModal()" class="cursor-pointer bg-gradient-to-r from-[#ffb829] via-yellow-400 to-[#ffb829] text-[#000000] text-xs font-black px-3.5 py-2 rounded-2xl shadow-xl border-2 border-yellow-200 mb-2 flex items-center gap-2 animate-bounce hover:scale-105 transition">
-            <i class="fa-solid fa-robot text-base"></i>
-            <span>¡Hola! ¿Dudas sobre el club? Preguntame</span>
-            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-        </div>
         <div id="chatbot-modal" class="hidden w-[340px] sm:w-[380px] h-[480px] bg-[#0a0a0a] border-2 border-[#ffb829]/60 rounded-3xl shadow-2xl flex flex-col overflow-hidden mb-3">
             <div class="bg-gradient-to-r from-[#000000] via-[#0a0a0a] to-[#2a2a2a] p-4 border-b border-[#2a2a2a]/40 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -42,7 +37,7 @@
                 <button type="button" onclick="sendChatMessage()" class="w-9 h-9 bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-bold rounded-xl flex items-center justify-center hover:scale-105 transition shadow-md"><i class="fa-solid fa-paper-plane text-xs"></i></button>
             </div>
         </div>
-        <button type="button" onclick="toggleChatbot()" class="w-14 h-14 rounded-full bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] text-xl shadow-2xl flex items-center justify-center hover:scale-110 transition relative border-2 border-[#000000] group">
+        <button type="button" onclick="toggleChatbot()" title="¿Necesitás ayuda?" aria-label="Abrir el asistente" class="w-14 h-14 rounded-full bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] text-xl shadow-2xl flex items-center justify-center hover:scale-110 transition relative border-2 border-[#000000] group">
             <i class="fa-solid fa-comments group-hover:rotate-12 transition transform"></i>
             <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#000000] animate-ping"></span>
             <span class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#000000]"></span>
@@ -80,13 +75,12 @@ document.body.insertAdjacentHTML('beforeend', html);
     }
 
 
-        window.toggleChatbot = function () {
-        const abierto = !document.getElementById('chatbot-modal').classList.toggle('hidden');
-        document.getElementById('chatbot-badge-prompt').classList.toggle('hidden', abierto);
+    // El chat arranca cerrado: se abre recién cuando tocan el ícono (o el botón ASISTENTE)
+    window.toggleChatbot = function () {
+        document.getElementById('chatbot-modal').classList.toggle('hidden');
     };
     window.openChatbotModal = function () {
         document.getElementById('chatbot-modal').classList.remove('hidden');
-        document.getElementById('chatbot-badge-prompt').classList.add('hidden');
     };
 
     window.sendQuickMessage = function (text) {
