@@ -367,27 +367,32 @@
 
     </main>
 
-    <!-- FLOATING MOBILE BOTTOM NAVIGATION (UX Premium for Mobile) -->
-    <div class="md:hidden fixed bottom-0 left-0 w-full bg-club-navy border-t border-club-blue/50 h-16 flex items-center justify-around px-4 z-40 shadow-2xl">
-        <button onclick="navigate('home')" id="mobile-nav-home" class="flex flex-col items-center gap-1 text-slate-400 text-xs active-tab">
+    <!-- FLOATING MOBILE BOTTOM NAVIGATION: las mismas secciones que en plantel, resultados y el portal.
+         El asistente se abre con el ícono redondo que está arriba de esta barra. -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-club-navy border-t border-club-blue/50 h-16 flex items-center justify-around px-2 z-40 shadow-2xl">
+        <button onclick="navigate('home')" id="mobile-nav-home" class="flex flex-col items-center gap-1 text-slate-400 text-[11px] active-tab">
             <i class="fa-solid fa-house text-lg"></i>
             <span>Inicio</span>
         </button>
-        <button onclick="navigate('news')" id="mobile-nav-news" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+        <button onclick="navigate('news')" id="mobile-nav-news" class="flex flex-col items-center gap-1 text-slate-400 text-[11px]">
             <i class="fa-solid fa-newspaper text-lg"></i>
             <span>Noticias</span>
         </button>
-        <button onclick="navigate('tickets')" id="mobile-nav-tickets" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+        <button onclick="navigate('tickets')" id="mobile-nav-tickets" class="flex flex-col items-center gap-1 text-slate-400 text-[11px]">
             <i class="fa-solid fa-ticket text-lg"></i>
             <span>Entradas</span>
         </button>
-        <button onclick="navigate('member')" id="mobile-nav-member" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+        <a href="/src/views/plantel.php" class="flex flex-col items-center gap-1 text-slate-400 text-[11px]">
+            <i class="fa-solid fa-people-group text-lg"></i>
+            <span>Plantel</span>
+        </a>
+        <a href="/src/views/resultados.php" class="flex flex-col items-center gap-1 text-slate-400 text-[11px]">
+            <i class="fa-solid fa-trophy text-lg"></i>
+            <span>Resultados</span>
+        </a>
+        <button onclick="navigate('member')" id="mobile-nav-member" class="flex flex-col items-center gap-1 text-slate-400 text-[11px]">
             <i class="fa-solid fa-id-card text-lg"></i>
             <span>Socio</span>
-        </button>
-        <button onclick="openChatbotModal()" id="mobile-nav-bot" class="flex flex-col items-center gap-1 text-club-gold text-xs font-bold">
-            <i class="fa-solid fa-robot text-lg animate-bounce"></i>
-            <span>Bot</span>
         </button>
     </div>
 

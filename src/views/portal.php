@@ -78,11 +78,14 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             radial-gradient(circle at 85% 15%, rgba(212,175,55,.35), transparent 45%),
             repeating-linear-gradient(90deg, #0a0a0a 0 70px, #17203b 70px 140px); }
         :focus-visible { outline: 2px solid #ffb829; outline-offset: 3px; }
+        /* En el celular el botón del asistente va arriba de la barra de abajo */
+        @media (max-width: 767px) { #chatbot-wrapper { bottom: 5rem !important; } }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/dala.css">
     <link rel="icon" type="image/png" href="/assets/img/escudo-chico.png">
 </head>
-<body class="bg-[#000000] text-slate-100 font-['Poppins'] min-h-screen">
+<body class="bg-[#000000] text-slate-100 font-['Poppins'] min-h-screen pb-16 md:pb-0">
 
  <header class="bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#2a2a2a]/30 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
@@ -118,7 +121,30 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
             <a href="/src/controllers/auth/logout.php" class="px-3 py-1.5 rounded-full border border-[#2a2a2a] hover:border-[#ffb829] text-xs font-semibold">Salir</a>
         </div>
     </div>
+    <?php if ($user['role'] === 'admin'): ?>
+        <!-- En el celular el menú de arriba no se ve: el admin entra a su panel desde acá -->
+        <div class="md:hidden border-t border-[#161616] px-4 h-10 flex items-center text-xs">
+            <a href="/src/views/admin/estadisticas.php" class="text-[#ffb829] font-semibold">Panel de administración →</a>
+        </div>
+    <?php endif; ?>
 </header>
+
+<!-- Barra de abajo en el celular (como en inicio, plantel y resultados) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a] border-t border-[#2a2a2a]/50 h-16 flex items-center justify-around px-2 z-40 shadow-2xl">
+    <?php foreach ([
+        ['Inicio', '/', 'fa-house'],
+        ['Noticias', '/#news', 'fa-newspaper'],
+        ['Entradas', '/src/views/entradas.php', 'fa-ticket'],
+        ['Plantel', '/src/views/plantel.php', 'fa-people-group'],
+        ['Resultados', '/src/views/resultados.php', 'fa-trophy'],
+        ['Socio', '/src/views/portal.php', 'fa-id-card'],
+    ] as [$texto, $url, $icono]): ?>
+        <a href="<?= $url ?>" class="flex flex-col items-center gap-1 text-[11px] <?= $texto === 'Socio' ? 'text-[#ffb829]' : 'text-slate-400' ?>">
+            <i class="fa-solid <?= $icono ?> text-lg"></i>
+            <span><?= $texto ?></span>
+        </a>
+    <?php endforeach; ?>
+</nav>
 
 <main class="max-w-6xl mx-auto px-4 py-8 space-y-10">
 
