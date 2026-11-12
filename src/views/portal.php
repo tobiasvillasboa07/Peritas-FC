@@ -2,11 +2,13 @@
 // Portal del socio: página a la que se llega después de iniciar sesión.
 require_once __DIR__ . '/../config/bootstrap.php';
 require_once __DIR__ . '/../models/mercadopago.php';
+require_once __DIR__ . '/../models/foto_socio.php';
 
 if (empty($_SESSION['user_id'])) { header('Location: /src/views/auth/login.php'); exit; }
 
 $uid = $_SESSION['user_id'];
-$st = $pdo->prepare('SELECT u.*, c.cuota_mensual FROM users u JOIN categorias c ON c.nombre = u.categoria WHERE u.id = ?');
+// rowid es el número de fila de SQLite (1, 2, 3...): lo usamos como número de socio
+$st = $pdo->prepare('SELECT u.*, u.rowid AS numero_socio, c.cuota_mensual FROM users u JOIN categorias c ON c.nombre = u.categoria WHERE u.id = ?');
 $st->execute([$uid]);
 $user = $st->fetch();
 if (!$user) { session_destroy(); header('Location: /src/views/auth/login.php'); exit; }
@@ -39,6 +41,13 @@ $cuotas = $pdo->prepare('SELECT * FROM cuotas WHERE user_id = ? ORDER BY periodo
 $cuotas->execute([$uid]);
 $cuotas = $cuotas->fetchAll();
 $pendientes = count(array_filter($cuotas, fn($c) => $c['estado'] === 'pendiente'));
+
+// Credencial: foto del socio (o null) y el error si la última foto que subió no servía
+$foto = foto_socio($pdo, $uid);
+$errorFoto = $_SESSION['foto_error'] ?? '';
+unset($_SESSION['foto_error']);
+$meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+$desde = strtotime($user['created_at']);
 
 $pp = $pdo->prepare('SELECT * FROM matches WHERE match_date >= ? ORDER BY match_date LIMIT 1');
 $pp->execute([date('Y-m-d H:i:s')]);   // hora de Argentina, la fija bootstrap.php
@@ -166,49 +175,86 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         <?php endif; ?>
     </section>
 
-    <div class="grid lg:grid-cols-3 gap-8">
-        <!-- Credencial -->
-        <section class="space-y-4">
-            <h2 class="text-xl font-bold">Mi credencial</h2>
-            <div class="rounded-2xl p-6 bg-gradient-to-br from-[#0a0a0a] to-[#000000] border border-[#ffb829]/40 space-y-4">
-                <p class="text-xs text-[#ffb829] font-bold">PERITAS FC · CLUB DE SOCIOS</p>
-                <p class="text-2xl font-extrabold"><?= e($user['name']) ?></p>
-                <dl class="text-sm space-y-1 text-slate-300">
-                    <div class="flex justify-between"><dt class="text-slate-400">Categoría</dt><dd><?= e($user['categoria']) ?></dd></div>
-                    <div class="flex justify-between"><dt class="text-slate-400">DNI</dt><dd><?= e($user['dni'] ?: '—') ?></dd></div>
-                    <div class="flex justify-between"><dt class="text-slate-400">Socio desde</dt><dd><?= date('d/m/Y', strtotime($user['created_at'])) ?></dd></div>
-                    <div class="flex justify-between"><dt class="text-slate-400">Estado</dt><dd class="<?= $pendientes ? 'text-yellow-400' : 'text-emerald-400' ?>"><?= $pendientes ? 'Cuota pendiente' : 'Al día' ?></dd></div>
-                </dl>
-            </div>
-        </section>
+    <!-- Credencial del socio (carnet) con su foto a la derecha -->
+    <section id="credencial" class="space-y-4">
+        <h2 class="text-xl font-bold">Mi credencial</h2>
+        <div class="relative overflow-hidden max-w-2xl rounded-2xl border border-[#8052ff]/40 bg-gradient-to-br from-[#1c1238] via-[#0d0a18] to-[#000000] p-6 sm:p-8">
+            <!-- Adornos de fondo: un círculo y las letras PFC -->
+            <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#8052ff]/15"></div>
+            <span class="absolute left-1/2 -bottom-4 text-8xl font-black text-white/5 select-none pointer-events-none">PFC</span>
 
-        <!-- Cuotas -->
-                <section id="cuotas" class="lg:col-span-2 space-y-4">
-            <h2 class="text-xl font-bold">Mis cuotas</h2>
-            <?php if ($avisoPago): ?>
-                <div class="rounded-xl px-4 py-3 text-sm border bg-<?= $avisoPago[1] ?>-500/10 border-<?= $avisoPago[1] ?>-500/40 text-<?= $avisoPago[1] ?>-300"><?= e($avisoPago[0]) ?></div>
-            <?php endif; ?>
-            <?php if ($pendientes): ?>
-                <p class="text-sm text-yellow-300">Tenés <?= $pendientes ?> cuota<?= $pendientes > 1 ? 's' : '' ?> sin pagar. Hasta que estés al día no tenés los beneficios de socio (Tribuna Popular gratis).</p>
-            <?php endif; ?>
-            <div class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 divide-y divide-[#2a2a2a]/30">
-                <?php foreach ($cuotas as $c): ?>
-                    <div class="flex items-center justify-between px-5 py-3 text-sm">
-                        <span>Cuota <?= e($c['periodo']) ?></span>
-                        <span class="font-semibold"><?= plata($c['monto']) ?></span>
-                                                <span class="px-2 py-0.5 rounded-full text-xs font-bold <?= $c['estado'] === 'pagada' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300' ?>"><?= e($c['estado']) ?></span>
-                        <?php if ($c['estado'] === 'pendiente'): ?>
-                            <form method="POST"><input type="hidden" name="cuota_id" value="<?= e($c['id']) ?>">
-                                <button class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-bold text-xs hover:scale-105 transition">Pagar</button></form>
+            <div class="relative flex items-start justify-between gap-5">
+                <div class="space-y-3 min-w-0">
+                    <p class="text-xs tracking-[0.2em] text-[#b9a3ff]">N° DE SOCIO: <?= str_pad($user['numero_socio'], 6, '0', STR_PAD_LEFT) ?></p>
+                    <p class="text-2xl sm:text-3xl font-extrabold leading-tight break-words"><?= e($user['name']) ?></p>
+                    <?php if ($pendientes): ?>
+                        <span class="inline-block px-3 py-1 rounded-full bg-yellow-500 text-[#000000] text-xs font-black tracking-widest">CUOTA PENDIENTE</span>
+                    <?php else: ?>
+                        <span class="inline-block px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-black tracking-widest">SOCIO ACTIVO</span>
+                    <?php endif; ?>
+                    <dl class="flex flex-wrap gap-x-8 gap-y-3 pt-2">
+                        <div><dt class="text-[11px] tracking-widest uppercase text-[#b9a3ff]">Categoría</dt><dd class="font-bold"><?= e(strtok($user['categoria'], ' ')) ?></dd></div>
+                        <div><dt class="text-[11px] tracking-widest uppercase text-[#b9a3ff]">Desde</dt><dd class="font-bold"><?= $meses[date('n', $desde) - 1] . ' ' . date('Y', $desde) ?></dd></div>
+                        <div><dt class="text-[11px] tracking-widest uppercase text-[#b9a3ff]">DNI</dt><dd class="font-bold"><?= $user['dni'] ? number_format((int)$user['dni'], 0, ',', '.') : '—' ?></dd></div>
+                    </dl>
+                </div>
+
+                <!-- Foto del socio: se sube desde acá (src/controllers/socios/foto.php) -->
+                <div class="shrink-0 flex flex-col items-center gap-2">
+                    <div class="w-24 h-32 sm:w-28 sm:h-36 rounded-xl overflow-hidden border-2 border-[#ffb829]/70 bg-[#141414] flex items-center justify-center">
+                        <?php if ($foto): ?>
+                            <img src="<?= e($foto) ?>" alt="Foto de <?= e($user['name']) ?>" class="w-full h-full object-cover">
                         <?php else: ?>
-                            <span class="w-[68px]"></span>
+                            <i class="fa-solid fa-user text-4xl text-slate-600"></i>
                         <?php endif; ?>
                     </div>
-                <?php endforeach; ?>
-                <?php if (!$cuotas): ?><p class="px-5 py-4 text-sm text-slate-400">Tu categoría no tiene cuota mensual.</p><?php endif; ?>
+                    <div class="flex items-center gap-3 text-xs">
+                        <form action="/src/controllers/socios/foto.php" method="POST" enctype="multipart/form-data">
+                            <label class="cursor-pointer font-semibold text-[#ffb829] hover:underline">
+                                <?= $foto ? 'Cambiar' : 'Agregar foto' ?>
+                                <input type="file" name="foto" id="foto-input" accept="image/jpeg,image/png,image/webp" class="hidden">
+                            </label>
+                        </form>
+                        <?php if ($foto): ?>
+                            <form action="/src/controllers/socios/foto.php" method="POST">
+                                <button type="submit" name="borrar" value="1" class="text-slate-400 hover:text-red-400">Quitar</button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
-        </section>
-    </div>
+        </div>
+        <?php if ($errorFoto): ?>
+            <p class="text-sm text-red-300"><?= e($errorFoto) ?></p>
+        <?php endif; ?>
+    </section>
+
+    <!-- Cuotas -->
+    <section id="cuotas" class="space-y-4">
+        <h2 class="text-xl font-bold">Mis cuotas</h2>
+        <?php if ($avisoPago): ?>
+            <div class="rounded-xl px-4 py-3 text-sm border bg-<?= $avisoPago[1] ?>-500/10 border-<?= $avisoPago[1] ?>-500/40 text-<?= $avisoPago[1] ?>-300"><?= e($avisoPago[0]) ?></div>
+        <?php endif; ?>
+        <?php if ($pendientes): ?>
+            <p class="text-sm text-yellow-300">Tenés <?= $pendientes ?> cuota<?= $pendientes > 1 ? 's' : '' ?> sin pagar. Hasta que estés al día no tenés los beneficios de socio (Tribuna Popular gratis).</p>
+        <?php endif; ?>
+        <div class="rounded-2xl border border-[#2a2a2a]/40 bg-[#0a0a0a]/60 divide-y divide-[#2a2a2a]/30">
+            <?php foreach ($cuotas as $c): ?>
+                <div class="flex items-center justify-between px-5 py-3 text-sm">
+                    <span>Cuota <?= e($c['periodo']) ?></span>
+                    <span class="font-semibold"><?= plata($c['monto']) ?></span>
+                                            <span class="px-2 py-0.5 rounded-full text-xs font-bold <?= $c['estado'] === 'pagada' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300' ?>"><?= e($c['estado']) ?></span>
+                    <?php if ($c['estado'] === 'pendiente'): ?>
+                        <form method="POST"><input type="hidden" name="cuota_id" value="<?= e($c['id']) ?>">
+                            <button class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#ffb829] to-yellow-500 text-[#000000] font-bold text-xs hover:scale-105 transition">Pagar</button></form>
+                    <?php else: ?>
+                        <span class="w-[68px]"></span>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+            <?php if (!$cuotas): ?><p class="px-5 py-4 text-sm text-slate-400">Tu categoría no tiene cuota mensual.</p><?php endif; ?>
+        </div>
+    </section>
 
     <!-- Entradas -->
     <section class="space-y-4">
@@ -270,6 +316,28 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         };
         poner(); setInterval(poner, 30000);
     }
+
+    // Foto de la credencial: al elegirla, el navegador la achica a 400 px de ancho y la sube sola
+    const inputFoto = document.getElementById('foto-input');
+    inputFoto.addEventListener('change', async () => {
+        const archivo = inputFoto.files[0];
+        if (!archivo) return;
+        try {
+            const imagen = await createImageBitmap(archivo);
+            const escala = Math.min(1, 400 / imagen.width);
+            const lienzo = document.createElement('canvas');
+            lienzo.width = Math.round(imagen.width * escala);
+            lienzo.height = Math.round(imagen.height * escala);
+            lienzo.getContext('2d').drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+            const jpg = await new Promise(listo => lienzo.toBlob(listo, 'image/jpeg', 0.85));
+            const lista = new DataTransfer();
+            lista.items.add(new File([jpg], 'foto.jpg', { type: 'image/jpeg' }));
+            inputFoto.files = lista.files;
+        } catch (error) {
+            // Si el navegador no la puede achicar, se sube como está (el servidor igual la revisa)
+        }
+        inputFoto.form.submit();
+    });
 </script>
 <script>window.PFC_USER = <?= json_encode(['name' => $user['name'], 'email' => $user['email']], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="/assets/js/asistente.js"></script>

@@ -25,7 +25,7 @@ panel de administración.
 | **Entradas** | Compra de entradas por sector con **Mercado Pago**. Los socios Pleno con la cuota al día entran gratis a la Tribuna Popular. |
 | **Plantel** | Jugadores del primer equipo por posición, con número y foto (se cargan desde un JSON). |
 | **Resultados** | Últimos partidos de Peritas FC y **tabla de posiciones** calculada sola (3 puntos por ganar, 1 por empatar). |
-| **Portal del socio** | Credencial, cuotas mensuales (se pagan con Mercado Pago), mis entradas e **historial de pagos**. |
+| **Portal del socio** | Credencial con número de socio y **foto** (la sube el socio), cuotas mensuales (se pagan con Mercado Pago), mis entradas e **historial de pagos**. |
 | **Asistente** | Responde con datos reales: próximo partido, precios, cuota del socio, cómo asociarse y la sede. |
 | **Administración** | **Estadísticas** (socios, recaudación, ocupación por partido, deudores), partidos, resultados y noticias. Solo para usuarios con rol `admin`. |
 | **Cuenta** | Registro (queda logueado al crear la cuenta), login, "¿Olvidaste tu contraseña?" (llega un link por mail) y salir. Si se vuelve al login con el botón "Atrás", la sesión se cierra. |
@@ -54,8 +54,8 @@ assets/              Lo que se manda tal cual al navegador
 
 src/                 El código PHP (lo que corre en el servidor)
   config/              Arranque: hora, sesión, conexión a la base, .env y control de admin
-  models/              Datos y reglas del club: pagos y cuotas (Mercado Pago), partidos, noticias, resultados y recuperar contraseña
-  controllers/         Reciben una acción y responden: pagos, asistente, noticias del admin y cerrar sesión
+  models/              Datos y reglas del club: pagos y cuotas (Mercado Pago), partidos, noticias, resultados, recuperar contraseña y foto del socio
+  controllers/         Reciben una acción y responden: pagos, asistente, noticias del admin, foto del socio y cerrar sesión
   views/               Las páginas que se ven
     inicio.html          Inicio, noticias y entradas (una sola página con JavaScript)
     portal.php           Portal del socio
