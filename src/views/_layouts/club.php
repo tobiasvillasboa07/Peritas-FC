@@ -115,10 +115,6 @@ function club_inicio(PDO $pdo, string $titulo, string $activo = ''): void {
                 </div>
             <?php endif; ?>
         </div>
-
-        <div class="md:hidden flex items-center">
-            <span class="text-xs text-club-gold font-bold px-2 py-1 rounded bg-club-blue/40 uppercase">PERITAS Movil</span>
-        </div>
     </div>
     <?php if (($usuario['role'] ?? '') === 'admin' && isset($admin[$activo])): ?>
         <div class="border-t border-[#161616]">
