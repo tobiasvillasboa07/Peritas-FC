@@ -33,7 +33,7 @@ panel de administración.
 ## Frontend y backend: dónde está cada cosa
 
 - **Frontend** = lo que corre en el **navegador** del usuario: HTML, CSS y JavaScript.
-- **Backend** = lo que corre en el **servidor**: PHP, la base de datos SQLite y las llamadas a Mercado Pago y Brevo.
+- **Backend** = lo que corre en el **servidor**: PHP, la base de datos SQLite y las llamadas a Mercado Pago y EmailJS.
 
 El código sigue la idea de **MVC** (Modelo, Vista, Controlador), sin framework:
 
@@ -97,7 +97,7 @@ flowchart TB
     end
     DB[("SQLite<br/>database.sqlite")]
     MP["API de Mercado Pago"]
-    BR["API de Brevo<br/>mails"]
+    BR["API de EmailJS<br/>mails"]
 
     PAG <-->|"formulario POST / HTML"| VIS
     INI <-->|"HTML + window.PFC_*"| ENT
@@ -120,7 +120,7 @@ flowchart TB
 | **Redirección y datos en la URL** | PHP → navegador → otra página | Después de cada formulario se redirige con GET (Post/Redirect/Get); `retorno.php` vuelve con `?pago=aprobado` |
 | **Sesión (`$_SESSION`)** | Entre páginas PHP del mismo usuario | `user_id` se guarda al iniciar sesión y lo revisan todas las páginas privadas |
 | **PDO** | PHP → base de datos | Consultas preparadas (con `?`) en `src/models` |
-| **cURL** | PHP → APIs de afuera | Mercado Pago (`src/models/mercadopago.php`) y Brevo (`src/models/recuperar.php`) |
+| **cURL** | PHP → APIs de afuera | Mercado Pago (`src/models/mercadopago.php`) y EmailJS (`src/models/recuperar.php`) |
 | **Webhook** | Mercado Pago → PHP | `src/controllers/pagos/webhook.php` |
 
 ### Ejemplo: comprar una entrada, paso por paso
@@ -141,7 +141,7 @@ flowchart TB
 - **Tailwind CSS** (desde CDN) + `assets/css/dala.css` con los colores del club (negro, violeta y ámbar).
 - **JavaScript** sin librerías para la página de inicio, el asistente y la cuenta regresiva.
 - **Mercado Pago Checkout Pro** para cobrar entradas y cuotas (con cURL, sin librerías).
-- **Brevo** para mandar el mail de recuperar contraseña (también con cURL).
+- **EmailJS** para mandar el mail de recuperar contraseña (también con cURL; el texto del mail está en una plantilla de EmailJS).
 - **Docker + Render** para publicar, y **Litestream** para guardar la base en la nube (Backblaze B2).
 
 ## Cómo correrlo (Codespaces o tu compu)
@@ -187,15 +187,17 @@ Para probar: token de prueba, **tarjetas de prueba** de Mercado Pago y ventana d
 ## Recuperar la contraseña
 
 1. En "¿Olvidaste tu contraseña?" el socio pone su mail. La página responde siempre lo mismo, exista o no el mail, así nadie puede averiguar quién es socio.
-2. Si es socio, `src/models/recuperar.php` genera un código al azar de 64 caracteres, guarda en la tabla `recuperaciones` **solo su hash** y le manda un mail (API de Brevo) con el link a `restablecer.php`.
+2. Si es socio, `src/models/recuperar.php` genera un código al azar de 64 caracteres, guarda en la tabla `recuperaciones` **solo su hash** y le manda un mail (API de EmailJS) con el link a `restablecer.php`.
 3. El link vence a los 30 minutos y sirve **una sola vez**. Se pueden pedir hasta 3 links por hora.
-4. Sin `BREVO_API_KEY` (en Codespaces o en tu compu) el link aparece en la terminal donde corre `php -S`, para probar.
+4. Sin `EMAILJS_SERVICE_ID` (en Codespaces o en tu compu) el link aparece en la terminal donde corre `php -S`, para probar.
+5. En EmailJS, la plantilla usa `{{to_email}}`, `{{nombre}}` y `{{link}}`, y en **Account → Security** tiene que estar activado
+   **"Allow EmailJS API for non-browser applications"** (si no, EmailJS rechaza los mails que manda el servidor).
 
 ## Publicación en Render
 
 - Render arma la imagen con el `Dockerfile` y ejecuta `run.sh`.
 - `run.sh` baja la base guardada en Backblaze (Litestream), la crea si no existe, da rol admin a `ADMIN_EMAIL` y arranca el servidor con `router.php`.
-- Variables de entorno en Render (**Environment**): `MP_ACCESS_TOKEN`, `ADMIN_EMAIL`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY`, `BREVO_API_KEY`, `MAIL_FROM` y `APP_URL`.
+- Variables de entorno en Render (**Environment**): `MP_ACCESS_TOKEN`, `ADMIN_EMAIL`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY`, `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID`, `EMAILJS_PUBLIC_KEY`, `EMAILJS_PRIVATE_KEY` y `APP_URL`.
 - En el plan gratis la página "se duerme" a los 15 minutos sin visitas y tarda unos segundos en despertar.
 
 ## Seguridad
@@ -205,5 +207,5 @@ Para probar: token de prueba, **tarjetas de prueba** de Mercado Pago y ventana d
 - Consultas con PDO y parámetros (sin SQL armado a mano con datos del usuario).
 - Sesiones en todas las páginas privadas; las de administración controlan que el usuario sea `admin`.
 - El precio y el estado de cada pago se verifican en el servidor contra Mercado Pago.
-- El token de Mercado Pago y las claves de Litestream y de Brevo van en variables de entorno, nunca en el repo.
+- El token de Mercado Pago y las claves de Litestream y de EmailJS van en variables de entorno, nunca en el repo.
 - `router.php` y `.htaccess` no dejan descargar la base de datos, el `.env` ni los archivos de configuración.

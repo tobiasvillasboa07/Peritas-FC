@@ -12,6 +12,6 @@ Está ordenado como **MVC** (Modelo, Vista, Controlador):
 
 **Cómo se usan entre sí:** el navegador pide una vista o un controlador → ese archivo incluye `config/bootstrap.php`
 (sesión y base) y el modelo que necesita (`require_once`) → el modelo consulta la base con PDO o llama a Mercado Pago
-o Brevo con cURL → la vista arma el HTML o el controlador responde JSON o redirige.
+o EmailJS con cURL → la vista arma el HTML o el controlador responde JSON o redirige.
 
 Lo que se manda tal cual al navegador (CSS, JavaScript e imágenes) está en [`assets/`](../assets).
