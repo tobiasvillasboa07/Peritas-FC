@@ -30,43 +30,109 @@ panel de administración.
 | **Administración** | **Estadísticas** (socios, recaudación, ocupación por partido, deudores), partidos, resultados y noticias. Solo para usuarios con rol `admin`. |
 | **Cuenta** | Registro (queda logueado al crear la cuenta), login, "¿Olvidaste tu contraseña?" (llega un link por mail) y salir. Si se vuelve al login con el botón "Atrás", la sesión se cierra. |
 
-## Cómo están ordenados los archivos
+## Frontend y backend: dónde está cada cosa
+
+- **Frontend** = lo que corre en el **navegador** del usuario: HTML, CSS y JavaScript.
+- **Backend** = lo que corre en el **servidor**: PHP, la base de datos SQLite y las llamadas a Mercado Pago y Brevo.
 
 El código sigue la idea de **MVC** (Modelo, Vista, Controlador), sin framework:
 
 ```
-index.php            Entrada de la página: arma el inicio con los datos de la base
-router.php           "Portero" del servidor de PHP: no deja descargar la base ni el .env
-.htaccess            Lo mismo que router.php, pero para Apache (XAMPP)
-schema.sql           Tablas de la base de datos (se crean solas la primera vez)
-Dockerfile           Publicación: arma la "caja" con PHP para Render
-run.sh               Publicación: lo que se ejecuta al prender el servidor en Render
-litestream.yml       Publicación: dónde se guarda la copia de la base (Backblaze B2)
-.env.example         Qué variables secretas hacen falta (el .env real no se sube)
-
-assets/              Lo que se manda tal cual al navegador
-  css/dala.css         Colores y tipografía del club
-  js/asistente.js      Chat flotante del asistente (portal, plantel, resultados)
-  data/                Datos que se editan sin tocar código (partidos, resultados, plantel, noticias)
-  img/                 Escudo y fotos de las noticias
-  img/plantel/         Fotos de los jugadores
-  img/partidos/        Fotos de fondo de los partidos (una por rival)
-
-src/                 El código PHP (lo que corre en el servidor)
-  config/              Arranque: hora, sesión, conexión a la base, .env y control de admin
-  models/              Datos y reglas del club: pagos y cuotas (Mercado Pago), partidos, noticias, resultados, recuperar contraseña y foto del socio
-  controllers/         Reciben una acción y responden: pagos, asistente, noticias del admin, foto del socio y cerrar sesión
-  views/               Las páginas que se ven
-    inicio.html          Inicio, noticias y entradas (una sola página con JavaScript)
-    portal.php           Portal del socio
-    entradas.php         Comprar entradas (versión sin JavaScript)
-    plantel.php          Plantel
-    resultados.php       Resultados y tabla de posiciones
-    auth/                Login, registro y recuperar contraseña
-    admin/               Estadísticas, partidos y resultados (solo admin)
-    posts/               Noticias del admin (listado y formulario)
-    _layouts/club.php    Encabezado y pie compartidos
+Peritas-FC/
+│
+├── assets/                FRONTEND: archivos que el navegador descarga tal cual
+│   ├── css/dala.css         Colores y tipografía del club (junto con Tailwind)
+│   ├── js/asistente.js      Chat del asistente (portal, plantel, resultados y admin)
+│   ├── img/                 Escudo y fotos (noticias, plantel/, partidos/)
+│   └── data/                JSON que se editan sin tocar código (partidos, resultados,
+│                            plantel, noticias). Los lee el BACKEND para cargar la base.
+│
+├── src/                   BACKEND: el código PHP que corre en el servidor
+│   ├── config/              Arranque: hora, sesión, conexión a la base, .env y control de admin
+│   ├── models/              Modelo: reglas del club y consultas a la base (pagos y cuotas con
+│   │                        Mercado Pago, partidos, noticias, resultados, recuperar contraseña,
+│   │                        foto del socio)
+│   ├── controllers/         Controlador: reciben una acción (un formulario o un fetch) y
+│   │                        responden JSON o redirigen (pagos, asistente, noticias, foto, salir)
+│   └── views/               Vista: las páginas. El servidor las arma con los datos de la base
+│       │                    y le manda al navegador solo el HTML
+│       ├── inicio.html        Inicio, noticias y entradas (HTML + el JavaScript del frontend)
+│       ├── portal.php         Portal del socio
+│       ├── entradas.php       Comprar entradas (versión sin JavaScript)
+│       ├── plantel.php        Plantel
+│       ├── resultados.php     Resultados y tabla de posiciones
+│       ├── auth/              Login, registro y recuperar contraseña
+│       ├── admin/             Estadísticas, partidos y resultados (solo admin)
+│       ├── posts/             Noticias del admin (listado y formulario)
+│       └── _layouts/club.php  Encabezado y pie compartidos
+│
+├── index.php              BACKEND: entrada de la página, arma el inicio con datos de la base
+├── router.php             BACKEND: "portero" del servidor, no deja descargar la base ni el .env
+├── .htaccess              Lo mismo que router.php, pero para Apache (XAMPP)
+├── schema.sql             BASE DE DATOS: las tablas (database.sqlite se crea sola y no se sube)
+├── Dockerfile             SERVIDOR: arma la "caja" con PHP para Render
+├── run.sh                 SERVIDOR: lo que se ejecuta al prender el servidor en Render
+├── litestream.yml         SERVIDOR: dónde se guarda la copia de la base (Backblaze B2)
+└── .env.example           Qué variables secretas hacen falta (el .env real no se sube)
 ```
+
+Las **vistas** (`src/views`) son el punto de encuentro: son archivos PHP, así que las ejecuta el servidor
+(backend), pero lo que generan es el HTML que ve el usuario (frontend). **El navegador nunca recibe el código
+PHP ni la base de datos**: solo HTML, CSS, JavaScript, imágenes y respuestas JSON.
+
+## Cómo se comunican el frontend y el backend
+
+```mermaid
+flowchart TB
+    subgraph NAV["FRONTEND: navegador"]
+        PAG["Páginas armadas por PHP<br/>portal, login, entradas, admin"]
+        INI["inicio.html<br/>con JavaScript"]
+        ASI["assets/js/asistente.js<br/>chat del asistente"]
+    end
+    subgraph SRV["BACKEND: servidor PHP"]
+        VIS["src/views"]
+        ENT["index.php"]
+        CON["src/controllers"]
+        MOD["src/models"]
+    end
+    DB[("SQLite<br/>database.sqlite")]
+    MP["API de Mercado Pago"]
+    BR["API de Brevo<br/>mails"]
+
+    PAG <-->|"formulario POST / HTML"| VIS
+    INI <-->|"HTML + window.PFC_*"| ENT
+    INI <-->|"fetch / JSON"| CON
+    ASI <-->|"fetch / JSON"| CON
+    PAG -->|"formulario POST"| CON
+    VIS --> MOD
+    ENT --> MOD
+    CON --> MOD
+    MOD -->|"PDO"| DB
+    MOD -->|"cURL"| MP
+    MOD -->|"cURL"| BR
+```
+
+| Cómo | De dónde a dónde | Ejemplo en el proyecto |
+|---|---|---|
+| **Formulario `POST`** | Navegador → PHP (llega en `$_POST` y `$_FILES`) | Login y registro (`src/views/auth/`), foto del carnet (`src/controllers/socios/foto.php`), pagar la cuota (`src/views/portal.php`), noticias del admin (`src/controllers/posts/`) |
+| **`fetch` con respuesta JSON** | JavaScript → PHP, sin recargar la página | Asistente → `src/controllers/chatbot.php`; comprar entrada → `src/controllers/pagos/crear.php` |
+| **Datos inyectados `window.PFC_*`** | PHP → JavaScript | `index.php` mete el usuario, los próximos partidos y las noticias en `inicio.html` |
+| **Redirección y datos en la URL** | PHP → navegador → otra página | Después de cada formulario se redirige con GET (Post/Redirect/Get); `retorno.php` vuelve con `?pago=aprobado` |
+| **Sesión (`$_SESSION`)** | Entre páginas PHP del mismo usuario | `user_id` se guarda al iniciar sesión y lo revisan todas las páginas privadas |
+| **PDO** | PHP → base de datos | Consultas preparadas (con `?`) en `src/models` |
+| **cURL** | PHP → APIs de afuera | Mercado Pago (`src/models/mercadopago.php`) y Brevo (`src/models/recuperar.php`) |
+| **Webhook** | Mercado Pago → PHP | `src/controllers/pagos/webhook.php` |
+
+### Ejemplo: comprar una entrada, paso por paso
+
+1. **Frontend:** en `inicio.html` el socio elige partido y sector y toca Pagar. `processTicketPayment()` hace un
+   `fetch` a `/src/controllers/pagos/crear.php` con el partido y el sector.
+2. **Backend, controlador:** `crear.php` revisa que haya sesión y llama al modelo.
+3. **Backend, modelo:** `crear_compra()` (`src/models/mercadopago.php`) calcula el precio **en el servidor**, guarda
+   el pago pendiente en la base y le pide a Mercado Pago el link de pago (cURL).
+4. **Backend → frontend:** `crear.php` responde un JSON con el link y el JavaScript manda al socio a Mercado Pago.
+5. **Vuelta:** Mercado Pago lo devuelve a `src/controllers/pagos/retorno.php`, que le pregunta a la API si el pago se
+   aprobó, recién ahí guarda la entrada y redirige a la página.
 
 ## Tecnologías
 
