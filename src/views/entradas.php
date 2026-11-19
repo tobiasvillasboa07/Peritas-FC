@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config/bootstrap.php';
 if (empty($_SESSION['user_id'])) { header('Location: /src/views/auth/login.php'); exit; }
 $uid = $_SESSION['user_id'];
-
+// e(): escapa texto (contra XSS) · plata(): formatea pesos o "Gratis"
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function plata($n) { return $n == 0 ? 'Gratis' : 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 

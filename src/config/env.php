@@ -1,8 +1,8 @@
 <?php
-/**
- * Lee el archivo .env de la raíz y deja cada variable disponible con env('NOMBRE').
- * Formato: NOMBRE=valor (las líneas que empiezan con # se ignoran).
- */
+
+// Lee el archivo .env de la raíz y deja cada variable disponible con env('NOMBRE').
+// Formato: NOMBRE=valor (las líneas que empiezan con # se ignoran).
+// env(): lee una clave secreta del .env (tu compu) o de Render; la usan mercadopago.php y recuperar.php
 function env(string $clave, $porDefecto = null) {
     static $vars = null;
     if ($vars === null) {

@@ -4,11 +4,11 @@
  * El encabezado es el mismo que el de la página de inicio (inicio.html).
  * Uso:  club_inicio($pdo, 'Título', 'plantel');  ...contenido...  club_fin();
  */
-
+// e(): escapa texto contra XSS (el if evita declararla dos veces)
 if (!function_exists('e')) {
     function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 }
-
+// Encabezado compartido (menú, usuario y barra del celular) de plantel, resultados y admin
 function club_inicio(PDO $pdo, string $titulo, string $activo = ''): void {
     global $club_usuario;
     $usuario = null;
@@ -141,7 +141,7 @@ function club_inicio(PDO $pdo, string $titulo, string $activo = ''): void {
 <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
     <?php
 }
-
+// Pie compartido: escribe window.PFC_USER y carga asistente.js
 function club_fin(): void {
     global $club_usuario;
     $datos = $club_usuario ? ['name' => $club_usuario['name'], 'email' => $club_usuario['email']] : null;

@@ -1,4 +1,4 @@
-(function () {
+(function () {   // Se ejecuta sola: arma el chat y lo pega en la página (usa window.PFC_USER)
     const user = window.PFC_USER || null;
     const nombre = user ? user.name : 'Invitado';
     const email = user ? user.email : 'invitado@peritas.com';
@@ -48,11 +48,11 @@
 document.body.insertAdjacentHTML('beforeend', html);
     document.getElementById('chatbot-user-indicator').innerText = user ? `${nombre} (${email})` : 'Usuario: Invitado';
     document.getElementById('chatbot-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
-
+    // Convierte < > & y comillas en texto seguro (contra XSS)
     function escapeHtml(str) {
         return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
     }
-
+    // Respuestas fijas por si chatbot.php no contesta
     function botReply(text) {
         const msg = text.toLowerCase();
         if (msg.includes('hola') || msg.includes('buenas')) return `¡Hola ${nombre}! ⚽ Bienvenido al Portal de Peritas FC. ¿En qué te puedo asesorar hoy?`;
@@ -63,7 +63,7 @@ document.body.insertAdjacentHTML('beforeend', html);
         if (msg.includes('chau') || msg.includes('adios') || msg.includes('gracias')) return `¡Muchas gracias ${nombre}! Vamos Peritas FC 💙💛`;
         return `No entendí bien tu consulta 🤔. Podés preguntarme sobre cuotas, asociarte, el próximo partido o la sede del club.`;
     }
-
+    // Agrega la burbuja con la respuesta del asistente
     function appendBot(text) {
         const box = document.getElementById('chatbot-messages');
         box.insertAdjacentHTML('beforeend', `
@@ -75,19 +75,19 @@ document.body.insertAdjacentHTML('beforeend', html);
     }
 
 
-    // El chat arranca cerrado: se abre recién cuando tocan el ícono (o el botón ASISTENTE)
+    // Abre o cierra el chat (arranca cerrado); va en window para que el onclick la encuentre
     window.toggleChatbot = function () {
         document.getElementById('chatbot-modal').classList.toggle('hidden');
     };
-    window.openChatbotModal = function () {
+    window.openChatbotModal = function () {   // abre el chat (botón ASISTENTE del menú)
         document.getElementById('chatbot-modal').classList.remove('hidden');
     };
-
+    // Botones rápidos: pone el texto en el input y lo manda
     window.sendQuickMessage = function (text) {
         document.getElementById('chatbot-input').value = text;
         sendChatMessage();
     };
-    window.sendChatMessage = function () {
+    window.sendChatMessage = function () {   // muestra tu mensaje y hace fetch POST a chatbot.php
         const input = document.getElementById('chatbot-input');
         const text = input.value.trim();
         if (!text) return;

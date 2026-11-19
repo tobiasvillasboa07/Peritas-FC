@@ -25,16 +25,16 @@ if ($uid) {
 }
 $nombre = htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8');
 
-/** Minúsculas y sin acentos, para comparar palabras fácil. */
+// normalizar(): pasa a minúsculas y saca los acentos ("Cuándo" = "cuando")
 function normalizar(string $t): string {
     return strtr(mb_strtolower($t), ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n']);
 }
-function contiene(string $texto, array $palabras): bool {
+function contiene(string $texto, array $palabras): bool {   // true si en el texto aparece alguna de las palabras
     foreach ($palabras as $p) if (str_contains($texto, $p)) return true;
     return false;
 }
-function plata($n): string { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
-
+function plata($n): string { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }   // formatea pesos: AR$ 8.000
+// responder(): reglas por palabra clave (partido, precios, cuota, asociarse...), después bot_faqs; usa la base
 function responder(PDO $pdo, string $m, string $nombre, ?string $uid): string {
     if (contiene($m, ['partido', 'juega', 'juegan', 'proximo', 'fecha', 'rival'])) {
         $st = $pdo->prepare('SELECT * FROM matches WHERE match_date >= ? ORDER BY match_date LIMIT 1');

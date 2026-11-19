@@ -20,7 +20,7 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS fotos_socios (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )");
 
-/** Revisa la foto subida y la guarda (reemplaza la anterior). Si no sirve, tira una excepción con el motivo. */
+// Revisa la foto (máx. 2 MB, imagen real con getimagesize) y la guarda como BLOB (la llama socios/foto.php)
 function guardar_foto_socio(PDO $pdo, string $userId, array $archivo): void {
     $error = $archivo['error'] ?? UPLOAD_ERR_NO_FILE;
     if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE || ($archivo['size'] ?? 0) > FOTO_MAX_BYTES) {
@@ -43,14 +43,14 @@ function guardar_foto_socio(PDO $pdo, string $userId, array $archivo): void {
     $st->execute();
 }
 
-/** La foto lista para usar en <img src="...">, o null si el socio todavía no subió ninguna. */
+// Devuelve la foto como data URI para el <img> del carnet, o null (la usa portal.php)
 function foto_socio(PDO $pdo, string $userId): ?string {
     $st = $pdo->prepare('SELECT tipo, datos FROM fotos_socios WHERE user_id = ?');
     $st->execute([$userId]);
     $foto = $st->fetch();
     return $foto ? 'data:' . $foto['tipo'] . ';base64,' . base64_encode($foto['datos']) : null;
 }
-
+// Borra la foto del socio (botón Quitar)
 function borrar_foto_socio(PDO $pdo, string $userId): void {
     $pdo->prepare('DELETE FROM fotos_socios WHERE user_id = ?')->execute([$userId]);
 }

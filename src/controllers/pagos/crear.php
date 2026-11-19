@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
 require_once __DIR__ . '/../../models/mercadopago.php';
 
 header('Content-Type: application/json; charset=utf-8');
-
+// Responde JSON con el código HTTP (200, 401, 405, 422 o 500) y corta con exit
 function responder(int $codigo, array $datos) {
     http_response_code($codigo);
     echo json_encode($datos, JSON_UNESCAPED_UNICODE);

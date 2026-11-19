@@ -520,7 +520,7 @@
         // Banner con el próximo partido real (se arma enseguida, sin esperar las imágenes)
         startCountdown();
 
-        // INIT EXECUTION
+        // Al cargar la página: dibuja noticias, partidos y el usuario del encabezado
         window.onload = function() {
             renderNews();
             renderMatches();
@@ -529,7 +529,7 @@
             navigate(['news', 'tickets'].includes(vistaInicial) ? vistaInicial : 'home');
         };
 
-        // ROUTER / NAVIGATOR SYSTEM
+        // Muestra una sección y esconde las otras (sin recargar la página)
         function navigate(viewName) {
             appState.currentView = viewName;
             
@@ -565,11 +565,11 @@
             window.scrollTo(0, 0);
         }
 
-        // SESIÓN REAL: los datos del usuario los pone index.php en window.PFC_USER
+        // Cierra la sesión: va a controllers/auth/logout.php
         function logout() {
             window.location.href = '/src/controllers/auth/logout.php';
         }
-
+        // Muestra tu nombre arriba (window.PFC_USER) o los botones Ingresar / Asociarse
         function updateAuthHeader() {
             const anonPanel = document.getElementById('user-anonymous');
             const profilePanel = document.getElementById('user-profile-menu');
@@ -587,7 +587,7 @@
             }
             updateChatbotUserLabel();
         }
-
+        // Abre o cierra el chat (clase hidden)
         function toggleChatbot() {
             const modal = document.getElementById('chatbot-modal');
             modal.classList.toggle('hidden');
@@ -598,7 +598,7 @@
                 messagesBox.scrollTop = messagesBox.scrollHeight;
             }
         }
-
+        // Abre el chat (botón ASISTENTE o /#asistente)
         function openChatbotModal() {
             const modal = document.getElementById('chatbot-modal');
             modal.classList.remove('hidden');
@@ -607,23 +607,23 @@
             const messagesBox = document.getElementById('chatbot-messages');
             if (messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;
         }
-
+                // El usuario del chat: window.PFC_USER (lo pone index.php) o Invitado
                 function usuarioChat() {
             if (window.PFC_USER) return window.PFC_USER;   // sesión real (PHP)
             return appState.currentUser;                   // login simulado
         }
-
+        // Escribe arriba del chat quién sos
         function updateChatbotUserLabel() {
             const indicator = document.getElementById('chatbot-user-indicator');
             const u = usuarioChat();
             if (indicator) indicator.innerText = u ? `${u.name} (${u.email || ''})` : "Usuario: Invitado";
         }
-
+        // Botones rápidos del chat: pone el texto y lo manda
         function sendQuickMessage(text) {
             document.getElementById('chatbot-input').value = text;
             sendChatMessage();
         }
-
+        // Muestra tu mensaje y hace fetch POST a chatbot.php; si falla, contesta el navegador
         function sendChatMessage() {
             const input = document.getElementById('chatbot-input');
             const text = input.value.trim();
@@ -664,7 +664,7 @@
                 }, 500);
             });
         }
-
+        // Agrega la burbuja con la respuesta del asistente
         function appendBotReply(replyText) {
             const messagesBox = document.getElementById('chatbot-messages');
             const botMsgHtml = `
@@ -676,7 +676,7 @@
             messagesBox.insertAdjacentHTML('beforeend', botMsgHtml);
             messagesBox.scrollTop = messagesBox.scrollHeight;
         }
-
+        // Respuestas fijas por si chatbot.php no contesta (sin servidor)
         function generateClientBotReply(text, name) {
             const msg = text.toLowerCase();
             if (msg.includes('hola') || msg.includes('buenas')) {
@@ -696,14 +696,14 @@
             }
             return `No entendí bien tu consulta 🤔. Podés preguntarme sobre cuotas, asociarte, el próximo partido o la sede del club.`;
         }
-
+        // Convierte < > & y comillas en texto seguro (contra XSS)
         function escapeHtml(str) {
             return str.replace(/[&<>"']/g, function(m) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
             });
         }
 
-        // RENDER: NEWS VIEWS
+        // Dibuja las tarjetas de noticias (3 en el inicio y todas en Noticias)
         function renderNews() {
             const homeNewsGrid = document.getElementById('home-news-grid');
             const fullNewsGrid = document.getElementById('full-news-grid');
@@ -725,7 +725,7 @@
             });
             if(fullNewsGrid) fullNewsGrid.innerHTML = fullHtml;
         }
-
+        // Arma el HTML de una tarjeta de noticia (template string)
         function createNewsCardMarkup(item) {
             return `
                 <div class="bg-club-navy border border-club-blue/30 rounded-2xl overflow-hidden shadow-lg hover:-translate-y-1 transition duration-300">
@@ -743,7 +743,7 @@
                 </div>
             `;
         }
-
+        // Filtra las noticias por categoría y las vuelve a dibujar
         function filterNews(category) {
             appState.newsFilter = category;
             
@@ -761,7 +761,7 @@
             renderNews();
         }
 
-        // RENDER: TICKETS SELECTION
+        // Dibuja los partidos (window.PFC_MATCHES) con el botón COMPRAR LOCALIDAD
         function renderMatches() {
             const listContainer = document.getElementById('matches-list-container');
             let html = MOCK_DB.matches.length ? '' : '<p class="text-slate-400 text-sm">No hay partidos próximos cargados todavía.</p>';
@@ -786,7 +786,7 @@
             if(listContainer) listContainer.innerHTML = html;
         }
 
-                // Sectores del partido: los reales vienen de la base (index.php), si no, usamos los del simulado
+        // Sectores con su precio: los reales ya vienen calculados por el servidor (index.php)
         function sectoresDelPartido(match) {
             if (match.sectores) return match.sectores;
             const socio = appState.currentUser && appState.currentUser.duesStatus === "AL_DIA";
@@ -799,7 +799,7 @@
             sectores.forEach(s => s.final = !socio ? s.precio : (s.key.startsWith('popular') ? 0 : s.precio * 0.5));
             return sectores;
         }
-
+        // Guarda el partido elegido y arma el select de sectores
         function selectMatchForTickets(matchId) {
             const match = MOCK_DB.matches.find(m => String(m.id) === String(matchId));
             appState.selectedTicketMatch = match;
@@ -830,7 +830,7 @@
 
             calculateTicketPrice();
         }
-
+        // Muestra precio, descuento y final (solo visual: el precio que se cobra lo calcula el servidor)
         function calculateTicketPrice() {
             if (!appState.selectedTicketMatch) return;
 
@@ -843,7 +843,7 @@
             document.getElementById('checkout-final-price').innerText = `AR$ ${sector.final.toLocaleString('es-AR')}`;
         }
 
-        // PAGO CON MERCADO PAGO: le pide al servidor la preferencia y redirige al checkout
+        // Botón Pagar: fetch POST a pagos/crear.php → si es gratis la muestra; si no, va al init_point de Mercado Pago
         async function processTicketPayment() {
             if (!window.PFC_USER) {
                 showToast("Acceso Denegado", "Debés iniciar sesión o registrarte como socio para comprar entradas.", "warning");
@@ -887,7 +887,7 @@
                 boton.disabled = false;
             }
         }
-
+        // Muestra "¡Entrada confirmada!" cuando la entrada fue gratis
         function mostrarEntradaConfirmada() {
             document.getElementById('ticket-checkout-form').innerHTML = `
                 <div class="text-slate-400 text-sm py-4 text-center">
@@ -900,7 +900,7 @@
         }
 
 
-        // DYNAMIC NOTIFICATIONS (TOASTS SYSTEM)
+        // Cartel de aviso arriba a la derecha (verde, amarillo o celeste) que se va solo
         function showToast(title, msg, type = 'success') {
             const toast = document.getElementById('custom-toast');
             const icon = document.getElementById('toast-icon');
@@ -925,7 +925,7 @@
             }, 3500);
         }
 
-        // MATCH COUNTDOWN TIMER
+        // Banner del próximo partido real (window.PFC_MATCHES) con cuenta regresiva
         function startCountdown() {
             // Próximo partido real (viene de index.php)
             const proximo = (window.PFC_MATCHES || [])[0];
@@ -952,7 +952,7 @@
             }
 
             let targetDate = proximo ? new Date(proximo.fecha_iso) : new Date(Date.now() + 3 * 864e5);
-
+            // Calcula días, horas y minutos que faltan; se repite cada minuto (setInterval)
             function updateTimer() {
                 const now = new Date();
                 const diff = targetDate - now;
@@ -979,7 +979,7 @@
         // Login, registro y portal del socio ya no usan el simulado del navegador:
         // llevan a las páginas PHP que guardan en database.sqlite.
         const navigateSimulado = navigate;
-        navigate = function (viewName) {
+        navigate = function (viewName) {   // login, registro y portal van a las páginas PHP; lo demás, al navigate de antes
             const rutas = {
                 login: '/src/views/auth/login.php',
                 register: '/src/views/auth/register.php',
@@ -988,7 +988,7 @@
             if (rutas[viewName]) { window.location.href = rutas[viewName]; return; }
             return navigateSimulado(viewName);
         };
-                // CARGAR NOTICIAS DESDE JSON
+        // Usa las noticias de la base (window.PFC_NEWS); si no hay, hace fetch a noticias.json
         async function cargarNoticias() {
                         // Si la página viene de index.php, usamos las noticias de la base (las carga el admin)
             if (window.PFC_NEWS) {

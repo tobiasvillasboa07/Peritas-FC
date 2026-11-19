@@ -47,7 +47,7 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS pagos_cuotas (
     FOREIGN KEY (user_id)  REFERENCES users(id)  ON DELETE CASCADE
 )");
 
-/** Crea la cuota del mes actual como pendiente si todavía no existe (no se repite gracias al UNIQUE). */
+// Crea la cuota del mes como pendiente (no se repite por el UNIQUE); la llaman el portal y el chatbot
 function generar_cuota_mes(PDO $pdo, string $userId): void {
     $st = $pdo->prepare('SELECT c.cuota_mensual FROM users u JOIN categorias c ON c.nombre = u.categoria WHERE u.id = ?');
     $st->execute([$userId]);
@@ -58,7 +58,7 @@ function generar_cuota_mes(PDO $pdo, string $userId): void {
     }
 }
 
-/** true si el socio no debe ninguna cuota. */
+// true si el socio no debe cuotas (cuenta las pendientes); la usa precio_sector()
 function cuota_al_dia(PDO $pdo, string $userId): bool {
     generar_cuota_mes($pdo, $userId);
     $st = $pdo->prepare("SELECT COUNT(*) FROM cuotas WHERE user_id = ? AND estado = 'pendiente'");
@@ -66,7 +66,7 @@ function cuota_al_dia(PDO $pdo, string $userId): bool {
     return $st->fetchColumn() == 0;
 }
 
-/** Precio de un sector: los socios Pleno CON LA CUOTA AL DÍA tienen la Tribuna Popular gratis. */
+// El precio lo decide el SERVIDOR: gratis si es Pleno + sector Popular + cuota al día
 function precio_sector(PDO $pdo, string $userId, string $sector): float {
     $st = $pdo->prepare('SELECT categoria FROM users WHERE id = ?');
     $st->execute([$userId]);
@@ -75,7 +75,7 @@ function precio_sector(PDO $pdo, string $userId, string $sector): float {
     return $gratis ? 0 : SECTORES[$sector][1];
 }
 
-/** URL pública del sitio (sirve en localhost, XAMPP y GitHub Codespaces). */
+// La dirección de la página (APP_URL o la detecta); sirve para las back_urls y el webhook
 function url_base(): string {
     if ($url = env('APP_URL')) return rtrim($url, '/');
     $host  = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -83,7 +83,7 @@ function url_base(): string {
     return ($https ? 'https' : 'http') . '://' . $host;
 }
 
-/** Llama a la API de Mercado Pago. Devuelve el JSON como array o tira una excepción con el motivo. */
+// Llama a la API de Mercado Pago con cURL + token (Bearer); devuelve el JSON como array o tira error
 function mp_api(string $metodo, string $ruta, ?array $datos = null): array {
     $token = env('MP_ACCESS_TOKEN');
     if (!$token) throw new RuntimeException('Falta MP_ACCESS_TOKEN en el archivo .env');
@@ -117,12 +117,12 @@ function mp_api(string $metodo, string $ruta, ?array $datos = null): array {
     return $json;
 }
 
-/**
- * Inicia la compra de una entrada.
- * Devuelve ['gratis' => true] si no hay que pagar (la entrada ya queda guardada)
- * o ['init_point' => url] para mandar al usuario a pagar a Mercado Pago.
- * Si algo no es válido tira una excepción con un mensaje para mostrar al usuario.
- */
+
+// Inicia la compra de una entrada.
+// Devuelve ['gratis' => true] si no hay que pagar (la entrada ya queda guardada)
+// o ['init_point' => url] para mandar al usuario a pagar a Mercado Pago.
+// Si algo no es válido tira una excepción con un mensaje para mostrar al usuario.
+// Valida la compra, guarda el pago pendiente y crea la preferencia → devuelve el init_point (la llama crear.php)
 function crear_compra(PDO $pdo, string $userId, string $matchId, string $sector): array {
     if (!isset(SECTORES[$sector])) throw new InvalidArgumentException('Elegí un sector válido.');
 
@@ -185,9 +185,9 @@ function crear_compra(PDO $pdo, string $userId, string $matchId, string $sector)
     return ['init_point' => $resp['init_point']];
 }
 
-/**
- * Inicia el pago de una cuota pendiente. Devuelve la URL de Mercado Pago (init_point).
- */
+
+// Inicia el pago de una cuota pendiente. Devuelve la URL de Mercado Pago (init_point).
+// Como crear_compra pero para una cuota TUYA y pendiente; el id empieza con "cuota-" (la llama el portal)
 function crear_pago_cuota(PDO $pdo, string $userId, string $cuotaId): string {
     $st = $pdo->prepare("SELECT * FROM cuotas WHERE id = ? AND user_id = ? AND estado = 'pendiente'");
     $st->execute([$cuotaId, $userId]);
@@ -226,7 +226,7 @@ function crear_pago_cuota(PDO $pdo, string $userId, string $cuotaId): string {
     return $resp['init_point'];
 }
 
-/** Marca como pagada la cuota de un pago aprobado en Mercado Pago. */
+// Si Mercado Pago aprobó, marca la cuota como pagada en una transacción (la llama confirmar_pago)
 function aplicar_pago_cuota(PDO $pdo, array $pagoMp, string $mpPaymentId): string {
     $st = $pdo->prepare('SELECT * FROM pagos_cuotas WHERE id = ?');
     $st->execute([$pagoMp['external_reference'] ?? '']);
@@ -253,10 +253,10 @@ function aplicar_pago_cuota(PDO $pdo, array $pagoMp, string $mpPaymentId): strin
 }
 
 
-/**
- * Consulta un pago en Mercado Pago y actualiza la base.
- * Si está aprobado crea la entrada (una sola vez). Devuelve el estado: aprobado, pendiente o rechazado.
- */
+
+// Consulta un pago en Mercado Pago y actualiza la base.
+// Si está aprobado crea la entrada (una sola vez). Devuelve el estado: aprobado, pendiente o rechazado.
+// Le pregunta a la API si el pago es real; si está aprobado guarda la entrada (la llaman retorno.php y webhook.php)
 function confirmar_pago(PDO $pdo, string $mpPaymentId): string {
     $pagoMp = mp_api('GET', '/v1/payments/' . rawurlencode($mpPaymentId));
         if (str_starts_with($pagoMp['external_reference'] ?? '', 'cuota-')) {

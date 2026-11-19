@@ -70,7 +70,7 @@ $hp = $pdo->prepare("
     ORDER BY fecha DESC");
 $hp->execute([$uid, $uid]);
 $historial = $hp->fetchAll();
-
+// e(): escapa texto (contra XSS) · plata(): formatea pesos (AR$ 5.000)
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 ?>
@@ -308,7 +308,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
     const box = document.getElementById('cuenta');
     if (box) {
         const fin = new Date(box.dataset.fecha);
-        const poner = () => {
+        const poner = () => {   // cuenta regresiva del próximo partido (se repite cada 30 s)
             const ms = Math.max(0, fin - new Date());
             document.getElementById('c-d').textContent = String(Math.floor(ms / 864e5)).padStart(2, '0');
             document.getElementById('c-h').textContent = String(Math.floor(ms % 864e5 / 36e5)).padStart(2, '0');
@@ -317,7 +317,7 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
         poner(); setInterval(poner, 30000);
     }
 
-    // Foto de la credencial: al elegirla, el navegador la achica a 400 px de ancho y la sube sola
+    // Al elegir la foto: la achica a 400 px (canvas), la pasa a JPG y manda el formulario a socios/foto.php
     const inputFoto = document.getElementById('foto-input');
     inputFoto.addEventListener('change', async () => {
         const archivo = inputFoto.files[0];
@@ -342,8 +342,8 @@ function plata($n) { return 'AR$ ' . number_format((float)$n, 0, ',', '.'); }
 <script>window.PFC_USER = <?= json_encode(['name' => $user['name'], 'email' => $user['email']], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) ?>;</script>
 <script src="/assets/js/asistente.js"></script>
 <script>
-    // Si el navegador muestra esta página desde su memoria (botón "Atrás" o "Adelante"),
-    // la recargamos para que el servidor vuelva a revisar la sesión
+    // pageshow: si "Atrás" muestra el portal guardado en memoria, lo recarga para que el servidor revise la sesión
+
     window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
 </script>
 </body>

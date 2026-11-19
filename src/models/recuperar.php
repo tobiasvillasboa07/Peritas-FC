@@ -29,11 +29,11 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS recuperaciones (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )");
 
-/**
- * Si el mail es de un socio, le manda el link para cambiar la contraseña.
- * No devuelve nada: la página muestra el mismo mensaje exista o no el mail,
- * así nadie puede averiguar quién es socio.
- */
+
+// Si el mail es de un socio, le manda el link para cambiar la contraseña.
+// No devuelve nada: la página muestra el mismo mensaje exista o no el mail,
+// así nadie puede averiguar quién es socio.
+// Genera el token al azar, guarda solo su hash (vence en 30 min, máx. 3 por hora) y manda el mail (la llama olvide.php)
 function pedir_recuperacion(PDO $pdo, string $email): void {
     $st = $pdo->prepare('SELECT id, name, email FROM users WHERE lower(email) = ?');
     $st->execute([$email]);
@@ -57,7 +57,7 @@ function pedir_recuperacion(PDO $pdo, string $email): void {
     }
 }
 
-/** Devuelve el pedido si el link es válido (existe, no se usó y no venció), o null. */
+// Busca el link por el hash del token: tiene que existir, no estar usado y no estar vencido
 function buscar_recuperacion(PDO $pdo, string $token): ?array {
     if (!preg_match('/^[a-f0-9]{64}$/', $token)) return null;
     $st = $pdo->prepare('SELECT * FROM recuperaciones WHERE token_hash = ? AND usado = 0 AND expira > ?');
@@ -65,7 +65,7 @@ function buscar_recuperacion(PDO $pdo, string $token): ?array {
     return $st->fetch() ?: null;
 }
 
-/** Cambia la contraseña usando el link. Devuelve false si el link ya no sirve. */
+// Guarda la contraseña nueva con password_hash y da por usados los links (la llama restablecer.php)
 function restablecer_contrasena(PDO $pdo, string $token, string $password): bool {
     $pedido = buscar_recuperacion($pdo, $token);
     if (!$pedido) return false;
@@ -77,10 +77,10 @@ function restablecer_contrasena(PDO $pdo, string $token, string $password): bool
     return true;
 }
 
-/**
- * Manda el mail con el link usando la API de EmailJS. Si algo falla tira una excepción con el motivo.
- * El texto del mail está en la plantilla de EmailJS, que usa {{to_email}}, {{nombre}} y {{link}}.
- */
+
+// Manda el mail con el link usando la API de EmailJS. Si algo falla tira una excepción con el motivo.
+// El texto del mail está en la plantilla de EmailJS, que usa {{to_email}}, {{nombre}} y {{link}}.
+// Manda el mail con el link por la API de EmailJS (cURL); sin claves, modo prueba: el link va al log
 function mandar_mail_recuperacion(array $user, string $token): void {
     $ruta = '/src/views/auth/restablecer.php?token=' . $token;
 
